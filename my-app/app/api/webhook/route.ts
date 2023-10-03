@@ -35,7 +35,6 @@ export async function POST(req: Request) {
 
   const addressString = addressComponents.filter((c) => c !== null).join(', ');
 
-console.log('event.type',event.type)
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {

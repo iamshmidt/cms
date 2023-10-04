@@ -24,6 +24,7 @@ const ProductsPage = async ({
     const formattedProduct: ProductColumn[] = products.map((item) => ({
         id: item.id,
         name: item.name,
+        quantity: item.quantity,
         isFeatured: item.isFeatured,
         isArchived: item.isArchived,
         price: formatter.format(item.price.toNumber()),

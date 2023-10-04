@@ -18,25 +18,52 @@ export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
-  const { productIds } = await req.json();
+  const { products } = await req.json();
+  console.log('products: ', products)
 
-  if (!productIds || productIds.length === 0) {
+  const productsIds = products.map((product: any) => product.id);
+  console.log('productsIds: ', productsIds)
+
+  const productDetails = products.map((product: any) => ({
+    productId: product.id,
+    amount: product.amount,
+    quantity: product.quantity,
+  }));
+
+  console.log('productDetails: ', productDetails)
+
+  if (!productsIds || productsIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
   }
 
-  const products = await prismadb.product.findMany({
+  const orderItemsToCreate = productDetails.map((productDetail:any) => ({
+    product: {
+      connect: { id: productDetail.productId },
+    },
+    amount: productDetail.amount,
+  }));
+
+// Calculate the total order quantity by summing the quantities of order items
+const totalOrderQuantity = orderItemsToCreate.reduce((total:any, item:any) => total + item.quantity, 0);
+
+// Calculate the total order amount by summing the amounts of order items
+const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
+
+
+  const products_ = await prismadb.product.findMany({
     where: {
       id: {
-        in: productIds
+        in: productsIds
       }
     }
   });
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
-  products.forEach((product) => {
+
+  products_.forEach((product) => {
     line_items.push({
-      quantity: 1,
+      quantity:product.amount,//change this later
       price_data: {
         currency: 'USD',
         product_data: {
@@ -46,22 +73,36 @@ export async function POST(
       }
     });
   });
+  
 
   const order = await prismadb.order.create({
     data: {
       storeId: params.storeId,
       isPaid: false,
       orderItems: {
-        create: productIds.map((productId: string) => ({
-          product: {
-            connect: {
-              id: productId
-            }
-          }
-        }))
-      }
-    }
+        create: orderItemsToCreate,
+      },
+      amount: totalOrderAmount,  // Update the order amount
+    },
   });
+
+  console.log(order)
+
+  
+  // const order = await prismadb.order.create({
+  //   data: {
+  //     storeId: params.storeId,
+  //     isPaid: false,
+  //     orderItems: {
+  //       create: orderItemsToCreate,
+  //     },
+  //     amount: totalOrderQuantity,  // Update the order amount to be the total quantity
+  //   },
+  // });
+
+
+// Iterate through each order and display details
+
 
   const session = await stripe.checkout.sessions.create({
     line_items,

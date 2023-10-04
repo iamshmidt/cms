@@ -211,6 +211,7 @@ model Product {
   name       String
   price      Decimal
   quantity   Int         @default(0)
+  amount     Int         @default(1)
   isFeatured Boolean     @default(false)
   isArchived Boolean     @default(false)
   sizeId     String // Foreign Key to Size
@@ -235,6 +236,7 @@ model Order {
   orderItems OrderItem[] // Relation to OrderItem model
   isPaid     Boolean     @default(false)
   phone      String      @default("")
+  amount     Int         @default(0)
   address    String      @default("")
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -249,6 +251,7 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id])
   productId String // Foreign Key to Product
   product   Product @relation(fields: [productId], references: [id])
+  amount    Int      @default(1)
 
   @@index([orderId])
   @@index([productId])

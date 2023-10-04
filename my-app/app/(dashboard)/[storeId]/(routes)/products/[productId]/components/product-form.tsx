@@ -80,6 +80,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     });
 
     const onSubmit = async (data: ProductFormValues) => {
+      console.log('[PRODUCT_FORM]', data)
         try {
             setLoading(true)
             if (initialData) {

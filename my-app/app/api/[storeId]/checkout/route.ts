@@ -18,25 +18,55 @@ export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
-  const { productIds } = await req.json();
+  const { products } = await req.json();
 
-  if (!productIds || productIds.length === 0) {
+  interface Product {
+    id: string;
+    amount: number;
+    quantity: number;
+  }
+  
+  const productsIds: string[] = products.map((product: Product) => product.id);
+
+
+  const productDetails: Product[] = products.map((product: Product) => ({
+    id: product.id,
+    amount: product.amount,
+    quantity: product.quantity,
+  }));
+
+
+  if (!productsIds || productsIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
   }
 
-  const products = await prismadb.product.findMany({
+  const orderItemsToCreate = productDetails.map((productDetail:any) => ({
+    product: {
+      connect: { id: productDetail.id },
+    },
+    amount: productDetail.amount,
+  }));
+
+
+// Calculate the total order amount by summing the amounts of order items
+const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
+
+
+  const products_ = await prismadb.product.findMany({
     where: {
       id: {
-        in: productIds
+        in: productsIds
       }
-    }
+    },
   });
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+ 
+  products_.forEach((product) => {
+    const matchingProductDetails = productDetails.find((item) => product.id === item.id);
 
-  products.forEach((product) => {
     line_items.push({
-      quantity: 1,
+      quantity: matchingProductDetails ? matchingProductDetails.amount : 1,
       price_data: {
         currency: 'USD',
         product_data: {
@@ -46,22 +76,19 @@ export async function POST(
       }
     });
   });
+  
 
   const order = await prismadb.order.create({
     data: {
       storeId: params.storeId,
       isPaid: false,
       orderItems: {
-        create: productIds.map((productId: string) => ({
-          product: {
-            connect: {
-              id: productId
-            }
-          }
-        }))
-      }
-    }
+        create: orderItemsToCreate,
+      },
+      amount: totalOrderAmount,  // Update the order amount
+    },
   });
+
 
   const session = await stripe.checkout.sessions.create({
     line_items,

@@ -13,7 +13,8 @@ export async function POST(
         const body = await req.json();
 
 
-        const { name, price, categoryId, sizeId, colorId, images, isFeatured, isArchived } = body;
+        const { name, price, quantity, categoryId, sizeId, colorId, images, isFeatured, isArchived } = body;
+  
 
         if (!userId) {
             return new NextResponse("Unauthenticated", { status: 403 });
@@ -59,6 +60,7 @@ export async function POST(
             data: {
                 name,
                 price,
+                quantity,
                 categoryId,
                 colorId,
                 sizeId,

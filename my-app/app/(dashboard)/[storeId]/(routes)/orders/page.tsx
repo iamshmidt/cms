@@ -22,9 +22,43 @@ const OrdersPage = async ({
             createdAt: 'desc'
         }
     });
+    console.log('orders', orders)
+    const productIds = orders.map(order => order.id);
 
+    const products = await prismadb.product.findMany({
+        where: {
+            id: {
+                in: productIds
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
 
-    const formattedOrders: OrderColumn[] = orders.map((item) => ({
+    interface OrderItem {
+        formattedTotalPrice: string;
+    }
+
+    const formattedOrder1s: OrderItem[] = orders.map((item, index) => {
+        console.log(item.orderItems, 'item')
+        const totalPriceForOrder = item.orderItems.reduce((total, orderItem) => {
+            console.log('orderItem.product.price', orderItem.product.amount)
+            console.log('orderItem.product.price', orderItem.product.price)
+            console.log('orderItem.amount', orderItem.amount)
+            const itemPrice = orderItem.amount * Number(orderItem.product.price);
+            console.log('itemPrice', itemPrice)
+            return total + itemPrice;
+        }, 0);
+        console.log('totalPriceForOrder', totalPriceForOrder)
+    
+        const formattedTotalPrice = formatter.format(totalPriceForOrder); // Assuming formatter is a defined formatter object
+    // console.log('formattedTotalPrice', formattedTotalPrice)
+        return { formattedTotalPrice };
+    });
+    
+
+    const formattedOrders: OrderColumn[] = orders.map((item, index) => ({
         id: item.id,
         phone: item.phone,
         address: item.address,
@@ -33,11 +67,10 @@ const OrdersPage = async ({
         productId: item.orderItems.map((item) => item.product.id).join(', '),
         products: item.orderItems.map((item) => item.product.name).join(', '),
         isPaid: item.isPaid,
-        totalPrice: formatter.format(item.orderItems.reduce((total, item) => {
-            return total + Number(item.product.price)
-        }, 0)),
+        totalPrice: formattedOrder1s[index].formattedTotalPrice,
         createdAt: format(item.createdAt, 'MMMM dd, yyyy')
     }));
+
     const paidOrders = formattedOrders.filter(order => order.isPaid);
     return (
 

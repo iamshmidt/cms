@@ -23,13 +23,14 @@ const OrdersPage = async ({
         }
     });
 
-    console.log(orders, 'orders')
 
     const formattedOrders: OrderColumn[] = orders.map((item) => ({
         id: item.id,
         phone: item.phone,
         address: item.address,
         amount: item.orderItems.length,
+        orderId: item.id,
+        productId: item.orderItems.map((item) => item.product.id).join(', '),
         products: item.orderItems.map((item) => item.product.name).join(', '),
         isPaid: item.isPaid,
         totalPrice: formatter.format(item.orderItems.reduce((total, item) => {
@@ -37,12 +38,13 @@ const OrdersPage = async ({
         }, 0)),
         createdAt: format(item.createdAt, 'MMMM dd, yyyy')
     }));
+    const paidOrders = formattedOrders.filter(order => order.isPaid);
     return (
 
         <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
 
-                <OrderClient data={formattedOrders}></OrderClient>
+                <OrderClient data={paidOrders}></OrderClient>
             </div>
         </div>
     );

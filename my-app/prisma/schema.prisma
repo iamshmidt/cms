@@ -203,25 +203,26 @@ model Category {
 }
 
 model Product {
-  id         String      @id @default(uuid())
-  storeId    String // Foreign Key to Store
-  store      Store       @relation("StoreToProduct", fields: [storeId], references: [id])
-  categoryId String // Foreign Key to Category
-  category   Category    @relation("CategoryToProduct", fields: [categoryId], references: [id])
-  name       String
-  price      Decimal
-  quantity   Int         @default(0)
-  amount     Int         @default(1)
-  isFeatured Boolean     @default(false)
-  isArchived Boolean     @default(false)
-  sizeId     String // Foreign Key to Size
-  size       Size        @relation(fields: [sizeId], references: [id])
-  colorId    String // Foreign Key to Color
-  color      Color       @relation(fields: [colorId], references: [id])
-  images     Image[] // Relation to Image model
-  orderItems OrderItem[] // Relation to Order model
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id           String         @id @default(uuid())
+  storeId      String // Foreign Key to Store
+  store        Store          @relation("StoreToProduct", fields: [storeId], references: [id])
+  categoryId   String // Foreign Key to Category
+  category     Category       @relation("CategoryToProduct", fields: [categoryId], references: [id])
+  name         String
+  price        Decimal
+  quantity     Int            @default(0)
+  amount       Int            @default(1)
+  isFeatured   Boolean        @default(false)
+  isArchived   Boolean        @default(false)
+  sizeId       String // Foreign Key to Size
+  size         Size           @relation(fields: [sizeId], references: [id])
+  colorId      String // Foreign Key to Color
+  color        Color          @relation(fields: [colorId], references: [id])
+  images       Image[] // Relation to Image model
+  orderItems   OrderItem[] // Relation to Order model
+  OrderDetails OrderDetails[] // Relation to OrderDetails model
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@index([storeId])
   @@index([categoryId])
@@ -230,16 +231,20 @@ model Product {
 }
 
 model Order {
-  id         String      @id @default(uuid())
-  storeId    String // Foreign Key to Store
-  store      Store       @relation("StoreToOrder", fields: [storeId], references: [id])
-  orderItems OrderItem[] // Relation to OrderItem model
-  isPaid     Boolean     @default(false)
-  phone      String      @default("")
-  amount     Int         @default(0)
-  address    String      @default("")
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id           String         @id @default(uuid())
+  storeId      String // Foreign Key to Store
+  store        Store          @relation("StoreToOrder", fields: [storeId], references: [id])
+  orderItems   OrderItem[] // Relation to OrderItem model
+  isPaid       Boolean        @default(false)
+  phone        String         @default("")
+  amount       Int            @default(0)
+  address      String         @default("")
+  email        String         @default("")
+  firstName    String         @default("")
+  lastName     String         @default("")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  orderDetails OrderDetails[] // Relation to OrderDetails model
 
   @@index([storeId])
 }
@@ -251,7 +256,22 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id])
   productId String // Foreign Key to Product
   product   Product @relation(fields: [productId], references: [id])
-  amount    Int      @default(1)
+  amount    Int     @default(1)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model OrderDetails {
+  id        String   @id @default(uuid())
+  orderId   String // Foreign Key to Order
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String // Foreign Key to Product
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  total     Decimal  @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([orderId])
   @@index([productId])

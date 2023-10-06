@@ -44,25 +44,33 @@ export async function POST(req: Request) {
         isPaid: true,
         address: addressString,
         phone: session?.customer_details?.phone || '',
+        email: session?.customer_details?.email || '',
+        firstName: session?.customer_details?.name || '',
+        lastName: session?.customer_details?.name || '',
       },
       include: {
         orderItems: true,
       }
     });
 
-    const productIds = order.orderItems.map((orderItem) => orderItem.productId);
-    console.log('productIds: ', productIds)
 
-    await prismadb.product.updateMany({
-      where: {
-        id: {
-          in: [...productIds],
+    const productIds = order.orderItems.map((orderItem) => orderItem.productId);
+    const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
+    
+    // Update product quantities based on the amountProducts array
+    await Promise.all(productIds.map(async (productId, index) => {
+      await prismadb.product.update({
+        where: {
+          id: productId,
         },
-      },
-      data: {
-        isArchived: true
-      }
-    });
+        data: {
+          isArchived: false,
+          quantity: {
+            decrement: amountProducts[index],  // Decrement by the corresponding amount
+          }
+        }
+      });
+    }));
   }
 
   return new NextResponse(null, { status: 200 });

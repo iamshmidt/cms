@@ -19,18 +19,22 @@ export async function POST(
   { params }: { params: { storeId: string } }
 ) {
   const { products } = await req.json();
-  console.log('products: ', products)
 
-  const productsIds = products.map((product: any) => product.id);
-  console.log('productsIds: ', productsIds)
+  interface Product {
+    id: string;
+    amount: number;
+    quantity: number;
+  }
+  
+  const productsIds: string[] = products.map((product: Product) => product.id);
 
-  const productDetails = products.map((product: any) => ({
-    productId: product.id,
+
+  const productDetails: Product[] = products.map((product: Product) => ({
+    id: product.id,
     amount: product.amount,
     quantity: product.quantity,
   }));
 
-  console.log('productDetails: ', productDetails)
 
   if (!productsIds || productsIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
@@ -38,13 +42,11 @@ export async function POST(
 
   const orderItemsToCreate = productDetails.map((productDetail:any) => ({
     product: {
-      connect: { id: productDetail.productId },
+      connect: { id: productDetail.id },
     },
     amount: productDetail.amount,
   }));
 
-// Calculate the total order quantity by summing the quantities of order items
-const totalOrderQuantity = orderItemsToCreate.reduce((total:any, item:any) => total + item.quantity, 0);
 
 // Calculate the total order amount by summing the amounts of order items
 const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
@@ -55,15 +57,16 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
       id: {
         in: productsIds
       }
-    }
+    },
   });
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-
-
+ 
   products_.forEach((product) => {
+    const matchingProductDetails = productDetails.find((item) => product.id === item.id);
+
     line_items.push({
-      quantity:product.amount,//change this later
+      quantity: matchingProductDetails ? matchingProductDetails.amount : 1,
       price_data: {
         currency: 'USD',
         product_data: {
@@ -85,23 +88,6 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
       amount: totalOrderAmount,  // Update the order amount
     },
   });
-
-  console.log(order)
-
-  
-  // const order = await prismadb.order.create({
-  //   data: {
-  //     storeId: params.storeId,
-  //     isPaid: false,
-  //     orderItems: {
-  //       create: orderItemsToCreate,
-  //     },
-  //     amount: totalOrderQuantity,  // Update the order amount to be the total quantity
-  //   },
-  // });
-
-
-// Iterate through each order and display details
 
 
   const session = await stripe.checkout.sessions.create({

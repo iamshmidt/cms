@@ -23,7 +23,7 @@ const formSchema = z.object({
     name: z.string().min(1),
     images: z.object({ url: z.string() }).array(),
     price: z.coerce.number().min(1),
-    quantity: z.coerce.number().min(1).max(5),
+    quantity: z.coerce.number().min(0).max(5),
     categoryId: z.string().min(1),
     colorId: z.string().min(1),
     sizeId: z.string().min(1),
@@ -80,7 +80,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     });
 
     const onSubmit = async (data: ProductFormValues) => {
-      console.log('[PRODUCT_FORM]', data)
         try {
             setLoading(true)
             if (initialData) {

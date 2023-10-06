@@ -1,6 +1,9 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import CellAction from "./cell-action"
+import Link from "next/link"
+import CellLink from "./cell-link"
 
 export type OrderColumn = {
   id: string
@@ -11,12 +14,16 @@ export type OrderColumn = {
   totalPrice: string
   products: string
   createdAt: string
+  orderId: string
+  productId: string
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "products",
     header: "Products",
+    cell: ({ row }) => <CellLink data={row.original} />
+
   },
   {
     accessorKey: "phone",

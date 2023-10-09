@@ -232,3 +232,113 @@ const ButtonEvents = () => {
     })}</button>
   );
 }
+// Create a type with three string fields 
+//The Record type is a way to build a new type with several members of a single type. For example, if you need an object with three members of type string, you could do it like 
+type RecordType1 = Record<"m1" | "m2" | "m3", string>;
+// Instantiate a variable from the type
+const x: RecordType1 = { m1: "s1", m2: "s2", m3: "s3"};
+console.log(x);
+
+// An interface with many fields of many types
+interface Animal {
+  age: number;
+  name: string;
+
+  maximumDeepness: number;
+
+  numberOfLegs: number;
+  canSwim: boolean;
+  runningSpeed: number;
+}
+
+// A function that need to take all the animal fields but from a string type
+function receiveInputFromUser(dataIn: Record<keyof Animal, string>): Animal{
+  const wellTypedObject: Animal = {
+      age: Number(dataIn.age),
+      name: dataIn.name,
+      maximumDeepness: Number(dataIn.maximumDeepness),
+      numberOfLegs: Number(dataIn.numberOfLegs),
+      canSwim: Boolean(dataIn.age),
+      runningSpeed: Number(dataIn.runningSpeed),
+  }
+  return wellTypedObject;
+}
+console.log(receiveInputFromUser({
+  age: "13",
+  name:"Fish",
+  numberOfLegs: "2",
+  maximumDeepness : "123",
+  canSwim : "true",
+  runningSpeed : "0"
+}));
+
+
+
+// Omit takes everything except the member selected. 
+interface Animal {
+  age: number;
+  name: string;
+
+  maximumDeepness: number;
+
+  numberOfLegs: number;
+  canSwim: boolean;
+  runningSpeed: number;
+}
+
+// Parameter using Omit to remove three fields
+function buyAFish(fishEntity: Omit<Animal, "numberOfLegs" | "canSwim" | "runningSpeed" >) {
+  console.log(fishEntity);
+}
+
+buyAFish({
+  age: 1,
+  name: "Clown Fish",
+  maximumDeepness: 10,
+});
+
+
+// Extract 
+interface Animal {
+  name: string;
+  sound: string;
+}
+interface Human {
+  name: string;
+  nickname: string;
+}
+
+type LivingThing = Extract<keyof Animal, keyof Human>;
+function sayMyName(who: Record<LivingThing, string>): void {
+  console.log(who.name);
+}
+const animal: Animal = { name: "Lion", sound: "Rawwwhhh" };
+const human: Human = { name: "Jacob", nickname: "Jaco-bee" };
+sayMyName(animal);
+sayMyName(human);
+//Output
+// Lion
+// Jacob
+
+// Adding a property conditionally
+interface Person {
+  name: string;
+  dateCreated: Date;
+}
+interface Animal {
+  name: string;
+}
+
+// Create a generic Type that add modifiedDate only if dateCreated is present
+type Modified<T> = T extends { dateCreated: Date } ? T & { modifiedDate: Date } : never;
+
+const p: Person = { name: "Pat", dateCreated: new Date() };
+const a: Animal = { name: "Jack" };
+
+// ModifiedDate present because "Person" has dateCreated
+const p2: Modified<Person> = { ...p, modifiedDate: new Date() }; 
+console.log(p2.modifiedDate)
+
+// Following line do not transpile because Animal does not have dateCreated
+// const a2: Modified<Animal> = { ...p, modifiedDate: new Date() };
+// console.log(a2.modifiedDate)

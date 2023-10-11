@@ -342,3 +342,40 @@ console.log(p2.modifiedDate)
 // Following line do not transpile because Animal does not have dateCreated
 // const a2: Modified<Animal> = { ...p, modifiedDate: new Date() };
 // console.log(a2.modifiedDate)
+
+// The tuple type is an array of defined elements. To declare a tuple, you use square brackets
+let numberTuple: [number, number, number];
+
+type IsString<T> = T extends string ? true : false;
+
+type A = IsString<string>; // A === true
+type B = IsString<"abc">; // B === true
+type C = IsString<123>; // C === false
+
+// intersection types &
+type A_and_B_and_C = A & B & C;
+
+// union types
+type A_or_B_or_C = A | B | C;
+
+// generic types
+function firstElement<T>(arr: T[]): T {
+  return arr[0];
+}
+
+let strArr = ["a", "b", "c"];
+let numArr = [1, 2, 3];
+
+let firstStr: string = firstElement(strArr);  // string
+let firstNum: number = firstElement(numArr);  // number
+
+// Generic Constraints
+interface Dictionary<T> {
+  [key: string]: T;
+}
+
+let userRoles: Dictionary<number> = {
+  'admin': 1,
+  'user': 2,
+  'guest': 3
+};

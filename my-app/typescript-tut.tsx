@@ -379,3 +379,22 @@ let userRoles: Dictionary<number> = {
   'user': 2,
   'guest': 3
 };
+
+// Argumant constraints
+interface FormField<T extends string | number | boolean> {
+  value?: T;
+  defaultValue: T;
+  isValid: boolean;
+}
+
+// Type 'T' does not satisfy the constraint 'string | number | boolean'
+function getFieldValue<T extends string | number>(field: FormField<T>): T {
+  return field.value ?? field.defaultValue;
+}
+
+
+// generalize the getIds function so that it works on any collection of objects that have the id property.
+function getIds<T extends Record<'id', string>>(elements: T[]) {
+  return elements.map(el => el.id);
+}
+

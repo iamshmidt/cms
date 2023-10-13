@@ -398,3 +398,82 @@ function getIds<T extends Record<'id', string>>(elements: T[]) {
   return elements.map(el => el.id);
 }
 
+//any, unknown
+// all types are assignable to the any type and the any type is assignable to any other type
+// all types are assignable to the unknown type, but the unknown type is not assignable to any 
+
+
+// Function and Inference Variables
+interface MyInterface {
+  myFunction: (p1: number) => void;
+}
+
+let myInterfaceWithDiffParams: MyInterface = {
+  myFunction: (anotherNameForP1: number) => { 
+    console.log(`The parameter is ${anotherNameForP1}`);
+  }
+};
+
+myInterfaceWithDiffParams.myFunction(100);
+
+//Itirating with Foreach
+let list3: (number | string)[] = [1, 2, 3, "a", "b", "c"];
+list3.forEach((v: string | number, index: number, array: (string | number)[]) => {
+    console.log("Value " + v + " at position " + index);
+}); 
+
+
+//for
+let listArrayPrimitive = { m1: "valuem1", m2: 2 };
+const keys = Object.keys(listArrayPrimitive);
+for (let index = 0; index < keys.length; index++) {
+    const key = keys[index];
+    const value = (listArrayPrimitive as any)[key];
+    console.log(`The property name ${key} has the value ${value}`);
+}
+
+
+// Array of multiple types
+
+const arr1: string[] = ["test", "one"];
+
+const arr2: (string | number)[] = [1, 2, "three"];
+
+//nested array
+const arr3: (Date| string[])[] = [new Date(), new Date(), ["1", "a"]];
+
+//generic array
+function action<T>(options: T[]): void {
+
+}
+
+// Same as:
+
+function action2<T>(options: Array<T>): void {
+
+}
+
+
+// moving data in to variables
+let [arr1, arr2] = [1, 2]; // 1 and 2 
+let [arr3, arr4] = [1, 2, 3, 4]; // 1 and 2 
+let [arr5, arr6, ...elements] = [1, 2, 3, 4, 5]; // 1 and 2 and [3,4,5]
+let [arr7, arr8, , ...elements2] = [1, 2, 3, 4, 5]; // 1 and 2 and [4,5] 
+
+
+//swapping 2 variables
+let swap1 = 1; 
+let swap2 = 2; [swap1, swap2] = [swap2, swap1]; 
+console.log(swap1, swap2); 
+
+//desctructure remainiang variables
+const objToDesctruct2 = { destr1: 1, destr2: "2", destr3: true };
+let { destr1, ...remainingObjDestr1 } = objToDesctruct2;
+console.log(remainingObjDestr1); // Does not have destr1
+
+
+//rename desert1 to newName
+
+const objToDesctruct1 = { destr1: 1, destr2: "2", destr3: true };
+let { destr1: newName } = objToDesctruct1; 
+console.log(newName); 

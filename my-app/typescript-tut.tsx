@@ -477,3 +477,33 @@ console.log(remainingObjDestr1); // Does not have destr1
 const objToDesctruct1 = { destr1: 1, destr2: "2", destr3: true };
 let { destr1: newName } = objToDesctruct1; 
 console.log(newName); 
+
+//Default props
+type Props = { who: string; message?: string };
+const Hello = ({ who, message }: Props) => (
+  <React.Fragment>
+    <p>Hello, {who}</p>
+    {message && <p>{message}</p>}
+  </React.Fragment>
+);
+Hello.defaultProps = {
+  message: "How are you?"
+};
+
+//useState
+const [count, setCount] = React.useState<number | null>(null);
+
+//useReducer
+function reducer (state: State, action: Actions): State {
+  switch (action.type) {
+    case 'loading':
+      return { ...state, loading: true };
+    case 'loaded':
+      return { ...state, loading: false, data: action.data };
+    default:
+      neverReached(action);
+  }
+};
+
+function neverReached (never: never) {};
+

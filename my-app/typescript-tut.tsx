@@ -507,3 +507,30 @@ function reducer (state: State, action: Actions): State {
 
 function neverReached (never: never) {};
 
+//STring or number indexes 
+interface MyGenericDictionary<T> { // Generic for the value
+  [id: string]: T; // The type T is the only accepted value
+}
+const dict2: MyGenericDictionary<string> = { ["100"]: "hundred", ["200"]: "two hundreds" };
+const dict3: MyGenericDictionary<number> = { ["100"]: 100, ["200"]: 200 };
+
+console.log(dict2);
+console.log(dict3); 
+
+// members of the same type
+interface MyStringDictionaryWithMembers {
+  [key: string]: string;
+  m1: string;
+  m2: string; // Fixed!
+}
+
+let map: MyStringDictionaryWithMembers = {
+  m1: "value1",
+  m2: "value2",
+  ["stringHere"]: "stringValue"
+}; 
+
+console.log(map);
+
+// Output
+// { m1: 'value1', m2: 'value2', stringHere: 'stringValue' }

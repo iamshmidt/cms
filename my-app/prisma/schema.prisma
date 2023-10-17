@@ -190,6 +190,7 @@ model Billboard {
 model Category {
   id          String    @id @default(uuid())
   storeId     String // Foreign Key to Store
+  sale        Boolean   @default(false)
   store       Store     @relation("StoreToCategory", fields: [storeId], references: [id])
   billboardId String // Foreign Key to Billboard
   billboard   Billboard @relation(fields: [billboardId], references: [id])
@@ -210,6 +211,8 @@ model Product {
   category     Category       @relation("CategoryToProduct", fields: [categoryId], references: [id])
   name         String
   price        Decimal
+  discount     Int            @default(0)
+  priceAfterDiscount Decimal  @default(0)
   quantity     Int            @default(0)
   amount       Int            @default(1)
   isFeatured   Boolean        @default(false)

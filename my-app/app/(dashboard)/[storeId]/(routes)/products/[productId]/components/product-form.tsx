@@ -29,7 +29,7 @@ const formSchema = z.object({
   sizeId: z.string().min(1),
   isFeatured: z.boolean().default(false).optional(),
   isArchived: z.boolean().default(false).optional(),
-  discount: z.number().min(0).max(100).optional(),
+  discount: z.coerce.number().min(0).max(100).optional(),
   priceAfterDiscount: z.coerce.number().min(0).optional(),
 });
 
@@ -43,6 +43,7 @@ interface ProductFormProps {
   colors: Color[];
   sizes: Size[];
   price: number;
+  discount: number | null;
 };
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -50,7 +51,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   categories,
   colors,
   sizes,
-  price
+  price,
+  discount
 }) => {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -63,12 +65,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const params = useParams();
   const router = useRouter();
-  
+
+
 
   const defaultValues = initialData ? {
     ...initialData,
     price: parseFloat(String(initialData?.price)),
     priceAfterDiscount: parseFloat(String(initialData?.priceAfterDiscount)),
+    discount: parseFloat(String(initialData?.discount)),
   } : {
     name: '',
     images: [],
@@ -88,35 +92,39 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues
   });
 
-  useEffect(() => {
-    console.log('PRICE', initialData?.price)
-    // if (form.getValues("price") && form.getValues("discount")) {
-    //   const price = parseFloat(form.getValues("price"));
-    //   const discount = parseFloat(form.getValues("discount")) / 100;
-    //   const discountedPrice = price * (1 - discount);
-    //   setNewPrice(discountedPrice);
-    // }
+  const { register, getValues, setValue, setError } = form;
+
+  const changePrice = () => {
+    const singleValue = form.getValues("price");
     const discountValue = form.getValues("discount");
-    console.log('DISCOUNT VALUE', discountValue)
-  }, [form.getValues("price"), form.getValues("discount")]);
+    const priceAfterDiscount = form.getValues("priceAfterDiscount");
+    console.log(discountValue)
+    if (discountValue !== null) {
+      getDiscount()
+    } else {
+      setValue('priceAfterDiscount', singleValue);
+    }
+  }
 
-  console.log('NEW PRICE', newPrice)
-console.log('PRICE', initialData?.price)
 
-const changePrice = (e: any) => {
-  const price = parseFloat(e.target.value);
-  form.setValue("price", price);
-
-  const discountValue = form.getValues("discount");
-  console.log('DISCOUNT VALUE', discountValue)
-  const discount = discountValue ? parseFloat(discountValue) / 100 : 0;
-  const discountedPrice = price * (1 - discount);
-
-  form.setValue("priceAfterDiscount", discountedPrice);
-
-  setNewPrice(discountedPrice);
-}
-
+  const getDiscount = () => {
+    const discountValue = getValues("discount")
+    const priceValue = getValues("price")
+    if (discountValue !== undefined) {
+      const discountedPrice = priceValue - (priceValue * discountValue / 100)
+      if (discountedPrice < 0) {
+        setError("priceAfterDiscount", {
+          type: "manual",
+          message: "Discounted price can't be negative."
+        });
+      } else {
+        const formattedDiscountedPrice = parseFloat(discountedPrice.toFixed(2));
+        console.log('formattedDiscountedPrice', typeof formattedDiscountedPrice)
+        setValue('priceAfterDiscount', formattedDiscountedPrice);
+      }
+    }
+  }
+  console.log('priceAfterDiscount', getValues("priceAfterDiscount"));
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
@@ -214,7 +222,17 @@ const changePrice = (e: any) => {
                 <FormItem>
                   <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input type="number" disabled={loading} placeholder="9.99" {...field} onChange={(e)=>changePrice(e)}/>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="9.99"
+                      {...field}
+                      {...register("price")}
+                      onChange={(e) => {
+                        field.onChange(e); // Ensure react-hook-form's onChange is called
+                        changePrice(); // Then, your custom handler
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -245,9 +263,11 @@ const changePrice = (e: any) => {
                       disabled={loading}
                       placeholder="0"
                       {...field}
+                      {...register("discount")}
                       onChange={(e) => {
                         const parsedValue = parseFloat(e.target.value);
                         field.onChange(parsedValue);
+                        getDiscount();
                       }}
                     />
                   </FormControl>
@@ -255,7 +275,7 @@ const changePrice = (e: any) => {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="priceAfterDiscount"
               render={({ field }) => (
@@ -267,11 +287,12 @@ const changePrice = (e: any) => {
                       disabled={loading}
                       placeholder="0"
                       {...field}
+                      {...register("priceAfterDiscount")}
                       // onChange={(e) => {
                       //   const parsedValue = parseFloat(e.target.value);
                       //   field.onChange(parsedValue);
                       // }}
-                      value={newPrice}
+                      // value={newPrice}
                       readOnly
                     />
                   </FormControl>
@@ -279,19 +300,6 @@ const changePrice = (e: any) => {
                 </FormItem>
               )}
             />
-            {/* <FormItem>
-              <FormLabel>Price After Discount</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  disabled={loading}
-                  value={isNaN(newPrice) ? "Error" : newPrice.toFixed(2)}
-                  readOnly
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem> */}
-            {/* <div>New Price: {newPrice.toFixed(2)}</div> */}
             <FormField
               control={form.control}
               name="categoryId"

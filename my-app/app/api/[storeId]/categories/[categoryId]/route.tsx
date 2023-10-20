@@ -18,9 +18,10 @@ export async function GET (
                 id: params.categoryId
             }, 
             include:{
-                billboard: true
+                billboard: true,
             }
         })
+        console.log(category)
         return NextResponse.json(category)
     } catch (error) {
         console.log('[category GET error: ', error)
@@ -35,7 +36,8 @@ export async function PATCH (
     try {
         const {userId} = auth();
         const body = await req.json();
-        const {name, billboardId} = body;
+        const {name, billboardId, discount, sale} = body;
+        console.log(body)
         if (!userId){
             return new NextResponse("Unauthorized", {status: 401})
         }
@@ -61,18 +63,32 @@ export async function PATCH (
         }
 
 
-        const category = await prismadb.category.updateMany({
+        await prismadb.category.update({
             where: {
                 id: params.categoryId,
-                
-            }, 
+            },
             data: {
                 name,
-                billboardId
+                billboardId,
+                sale,
+                discount
             }
-        })
+        });
 
-        return NextResponse.json(category)
+        if (discount) {  // Only update product discount if it's present in the request body
+            await prismadb.product.updateMany({
+                where: {
+                    categoryId:params.categoryId,
+                },
+                data: {
+                    discount
+                }
+            });
+        }
+
+        return NextResponse.json({ message: "Category updated successfully!" });
+
+
 
     } catch (error) {
         console.log('[category PATCH error: ', error)

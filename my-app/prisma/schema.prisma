@@ -191,6 +191,7 @@ model Category {
   id          String    @id @default(uuid())
   storeId     String // Foreign Key to Store
   sale        Boolean   @default(false)
+  discount    Int       @default(0)
   store       Store     @relation("StoreToCategory", fields: [storeId], references: [id])
   billboardId String // Foreign Key to Billboard
   billboard   Billboard @relation(fields: [billboardId], references: [id])

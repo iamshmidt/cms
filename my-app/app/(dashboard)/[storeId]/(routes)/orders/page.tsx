@@ -22,7 +22,6 @@ const OrdersPage = async ({
             createdAt: 'desc'
         }
     });
-    console.log('orders', orders)
     const productIds = orders.map(order => order.id);
 
     const products = await prismadb.product.findMany({

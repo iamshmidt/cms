@@ -46,6 +46,7 @@ interface ProductFormProps {
   discount: number | null;
 };
 
+
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
@@ -98,7 +99,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     const singleValue = form.getValues("price");
     const discountValue = form.getValues("discount");
     const priceAfterDiscount = form.getValues("priceAfterDiscount");
-    console.log(discountValue)
     if (discountValue !== null) {
       getDiscount()
     } else {
@@ -119,12 +119,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         });
       } else {
         const formattedDiscountedPrice = parseFloat(discountedPrice.toFixed(2));
-        console.log('formattedDiscountedPrice', typeof formattedDiscountedPrice)
         setValue('priceAfterDiscount', formattedDiscountedPrice);
       }
     }
   }
-  console.log('priceAfterDiscount', getValues("priceAfterDiscount"));
+  // check if selected catagory has discount 
+  const checkCatDiscount = () => {
+    const selectedCat = getValues("categoryId")
+    const selectedCatDiscount = categories.find((cat) => cat.id === selectedCat)?.discount
+    if (selectedCatDiscount !== undefined && selectedCatDiscount !== null && selectedCatDiscount !== 0) {
+      toast.success(`This category has ${selectedCatDiscount}% discount on all products.`)
+      setValue('discount', selectedCatDiscount);
+    }
+  }
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
@@ -158,7 +165,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }
   return (
     <>
-      <AlertModal loading={loading} isOpen={open} onClose={() => setOpen(false)} onConfirm={onDelete}></AlertModal>
+      <AlertModal loading={loading}  isOpen={open} onClose={() => setOpen(false)} onConfirm={onDelete}></AlertModal>
       <div className="flex items-center justify-between">
         <Heading title={title} description={description}></Heading>
         {initialData && (
@@ -306,7 +313,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select disabled={loading} onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                  <Select disabled={loading} onValueChange={(e) => { field.onChange(e); checkCatDiscount() }} value={field.value} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue defaultValue={field.value} placeholder="Select a category" />

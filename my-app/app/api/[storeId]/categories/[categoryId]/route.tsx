@@ -2,22 +2,22 @@ import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs"
 import { NextResponse } from "next/server"
 
-export async function GET (
+export async function GET(
     req: Request,
-    {params} : {params: { categoryId: string}}
-){
+    { params }: { params: { categoryId: string } }
+) {
     try {
-       
-        if(!params.categoryId){
-            return new NextResponse("Category ID is required", {status: 400})
+
+        if (!params.categoryId) {
+            return new NextResponse("Category ID is required", { status: 400 })
         }
-        
+
 
         const category = await prismadb.category.findUnique({
             where: {
                 id: params.categoryId
-            }, 
-            include:{
+            },
+            include: {
                 billboard: true,
             }
         })
@@ -25,30 +25,30 @@ export async function GET (
         return NextResponse.json(category)
     } catch (error) {
         console.log('[category GET error: ', error)
-        return new NextResponse("Internal error", {status: 500})
+        return new NextResponse("Internal error", { status: 500 })
     }
 }
 
-export async function PATCH (
+export async function PATCH(
     req: Request,
-    {params} : {params: {storeId: string, categoryId: string}}
-){
+    { params }: { params: { storeId: string, categoryId: string } }
+) {
     try {
-        const {userId} = auth();
+        const { userId } = auth();
         const body = await req.json();
-        const {name, billboardId, discount, sale} = body;
+        const { name, billboardId, discount, sale } = body;
         console.log(body)
-        if (!userId){
-            return new NextResponse("Unauthorized", {status: 401})
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 })
         }
-        if(!name){
-            return new NextResponse("name is required", {status: 400})
+        if (!name) {
+            return new NextResponse("name is required", { status: 400 })
         }
-        if(!billboardId){
-            return new NextResponse("billboard id is required", {status: 400})
+        if (!billboardId) {
+            return new NextResponse("billboard id is required", { status: 400 })
         }
-        if(!params.categoryId){
-            return new NextResponse("category ID is required", {status: 400})
+        if (!params.categoryId) {
+            return new NextResponse("category ID is required", { status: 400 })
         }
 
         const storeByUserId = await prismadb.store.findFirst({
@@ -58,8 +58,8 @@ export async function PATCH (
             }
         })
 
-        if(!storeByUserId){
-            return new NextResponse("Unauthorized", { status: 403})
+        if (!storeByUserId) {
+            return new NextResponse("Unauthorized", { status: 403 })
         }
 
 
@@ -74,17 +74,45 @@ export async function PATCH (
                 discount
             }
         });
-
-        if (discount) {  // Only update product discount if it's present in the request body
+        
+        if (discount) {
+            // Update the discount value for all products in the given category
             await prismadb.product.updateMany({
                 where: {
-                    categoryId:params.categoryId,
+                    categoryId: params.categoryId,
                 },
                 data: {
                     discount
                 }
             });
+
+            // Fetch all the products in the given category
+            const products: { id: string, price:any}[] = await prismadb.product.findMany({
+                where: {
+                    categoryId: params.categoryId,
+                },
+                select: {
+                    id: true,
+                    price: true
+                }
+            });
+
+            // Calculate and update the priceAfterDiscount for each product
+            for (const product of products) {
+                const discountedPrice: number = parseFloat((product.price - (product.price * discount / 100)).toFixed(2));
+                await prismadb.product.update({
+                    where: {
+                        id: product.id
+                    },
+                    data: {
+                        priceAfterDiscount: discountedPrice
+                    }
+                });
+            }
         }
+
+
+
 
         return NextResponse.json({ message: "Category updated successfully!" });
 
@@ -92,23 +120,23 @@ export async function PATCH (
 
     } catch (error) {
         console.log('[category PATCH error: ', error)
-        return new NextResponse("Internal error", {status: 500})
+        return new NextResponse("Internal error", { status: 500 })
     }
 }
 
-export async function DELETE (
+export async function DELETE(
     req: Request,
-    {params} : {params: {storeId: string,  categoryId: string}}
-){
+    { params }: { params: { storeId: string, categoryId: string } }
+) {
     try {
-        const {userId} = auth();
-        if (!userId){
-            return new NextResponse("Unauthorized", {status: 401})
+        const { userId } = auth();
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 })
         }
-        if(!params.categoryId){
-            return new NextResponse("category ID is required", {status: 400})
+        if (!params.categoryId) {
+            return new NextResponse("category ID is required", { status: 400 })
         }
-        
+
         const storeByUserId = await prismadb.store.findFirst({
             where: {
                 id: params.storeId,
@@ -116,19 +144,19 @@ export async function DELETE (
             }
         })
 
-        if(!storeByUserId){
-            return new NextResponse("Unauthorized", { status: 403})
+        if (!storeByUserId) {
+            return new NextResponse("Unauthorized", { status: 403 })
         }
 
 
         const category = await prismadb.category.deleteMany({
             where: {
                 id: params.categoryId
-            }, 
+            },
         })
         return NextResponse.json(category)
     } catch (error) {
         console.log('[category DELETE error: ', error)
-        return new NextResponse("Internal error", {status: 500})
+        return new NextResponse("Internal error", { status: 500 })
     }
 }

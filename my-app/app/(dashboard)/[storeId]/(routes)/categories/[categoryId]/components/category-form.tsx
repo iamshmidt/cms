@@ -92,7 +92,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
         if (postData.sale === true && !postData.discount) {
             postData.discount = 10;  
-        } 
+        } else if(postData.sale === false){
+            postData.discount = 0;
+        }
+        
         try {
             setLoading(true);
             if (initialData) {

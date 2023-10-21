@@ -127,9 +127,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const checkCatDiscount = () => {
     const selectedCat = getValues("categoryId")
     const selectedCatDiscount = categories.find((cat) => cat.id === selectedCat)?.discount
-    if (selectedCatDiscount !== undefined && selectedCatDiscount !== null && selectedCatDiscount !== 0) {
+    console.log(selectedCatDiscount)
+    if (selectedCatDiscount !== undefined && selectedCatDiscount !== null ) {
+      if(selectedCatDiscount !== 0) {
       toast.success(`This category has ${selectedCatDiscount}% discount on all products.`)
+      }
       setValue('discount', selectedCatDiscount);
+      getDiscount()
     }
   }
 

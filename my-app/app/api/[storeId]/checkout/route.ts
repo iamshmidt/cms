@@ -19,6 +19,8 @@ export async function POST(
   { params }: { params: { storeId: string } }
 ) {
   const { products } = await req.json();
+console.log('POSTTT')
+  console.log( products, 'products')
 
   interface Product {
     id: string;
@@ -88,6 +90,8 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
       amount: totalOrderAmount,  // Update the order amount
     },
   });
+
+  console.log('order', order)
 
 
   const session = await stripe.checkout.sessions.create({

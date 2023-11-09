@@ -64,17 +64,23 @@ console.log('addressString', addressString)
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
 
     // send email to admin
-    // const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
-    //  // Prepare the email details
-    //  const emailDetails: SendEmailInterface = {
-    //   to: adminEmail,
-    //   subject: 'Your order is complete!',
-    //   text: 'Thank you for your order. Your order is now complete and will be shipped to you shortly.'
-    // };
-    // if (emailDetails.to) {
-    //   console.log('Sending email...', emailDetails)
-    //   await sendEmail(emailDetails);
-    // }
+    const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
+    console.log('adminEmail', adminEmail)
+     // Prepare the email details
+     const emailDetails: SendEmailInterface = {
+      to: 'yuliia.shmidt@gmail.com',
+      subject: 'Your order is complete!',
+      text: 'Thank you for your order. Your order is now complete and will be shipped to you shortly.'
+    };
+    if (emailDetails.to) {
+      console.log('Sending email...', emailDetails)
+      try {
+        await sendEmail(emailDetails);
+        console.log('Email sent successfully');
+      } catch (error) {
+        console.error('Failed to send email', error);
+      }
+    }
 
 
     

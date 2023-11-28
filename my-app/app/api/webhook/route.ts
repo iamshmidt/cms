@@ -5,7 +5,8 @@ import { NextResponse } from "next/server"
 
 import { stripe } from "@/lib/stripe"
 import prismadb from "@/lib/prismadb"
-import { SendEmailInterface, sendEmail } from "@/hooks/use-email"
+import {  sendEmail } from "@/hooks/use-email"
+import { SendEmailInterface} from "@/types";
 
 export async function POST(req: Request) {
   console.log('req', req)
@@ -68,9 +69,16 @@ console.log('addressString', addressString)
     console.log('adminEmail', adminEmail)
      // Prepare the email details
      const emailDetails: SendEmailInterface = {
+      order_id: order.id,
+      amount: order.amount,
+      address: order.address,
+      date:order.createdAt,
+      from:order.email,
+      cust_name: order.firstName,
+      cust_lname: order.lastName,
       to: 'yuliia.shmidt@gmail.com',
       subject: 'Your order is complete!',
-      text: 'Thank you for your order. Your order is now complete and will be shipped to you shortly.'
+      text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`
     };
     if (emailDetails.to) {
       console.log('Sending email...', emailDetails)

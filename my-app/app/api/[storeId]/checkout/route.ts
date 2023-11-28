@@ -91,7 +91,6 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
     },
   });
 
-  console.log('order', order)
 
 
   const session = await stripe.checkout.sessions.create({

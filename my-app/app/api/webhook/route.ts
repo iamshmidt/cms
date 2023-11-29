@@ -72,11 +72,11 @@ console.log('addressString', addressString)
       order_id: order.id,
       amount: order.amount,
       address: order.address,
-      date:order.createdAt,
+      date_:order.createdAt,
       from:order.email,
       cust_name: order.firstName,
       cust_lname: order.lastName,
-      to: 'yuliia.shmidt@gmail.com',
+      to: adminEmail,
       subject: 'Your order is complete!',
       text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`
     };

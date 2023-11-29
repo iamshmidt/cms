@@ -1,22 +1,11 @@
-import * as React from 'react';
+
 import { SendEmailInterface} from "@/types";
-import {
-  Html,
-  Body,
-  Head,
-  Heading,
-  Hr,
-  Container,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
 
 export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   order_id,
   amount,
   address,
-  date,
+  date_,
   from,
   cust_name,
   cust_lname,
@@ -24,27 +13,23 @@ export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   subject,
   text
 }) => (
-  <Html>
-  <Head />
-  <Preview>New message from your portfolio site</Preview>
-  <Body  style={main}>
-    <Container  style={container}>
-      <Section className="max-w-xl mx-auto mt-10 p-8 bg-white shadow-md rounded-lg">
-        <Heading style={h1}>
-        Thanks for your order! We'll send you more details as soon as it's processed. Get ready for something great
-        </Heading>
-        {/* <Text  style={text}> */}
-          {subject}
-        {/* </Text> */}
-        <Hr style={{ borderTop: '1px solid #CBD5E0', margin: '24px 0' }} />
-        <Text className="text-sm text-gray-500">
-        Sent by: <span style={{ fontWeight: '500', color: '#2D3748' }}>{cust_name} {cust_lname}</span>
-       </Text>
-      </Section>
-    </Container>
-  </Body>
-</Html>
+  <div style={{ fontFamily: 'Arial, sans-serif', color: '#374151', padding: '20px' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px', color: '#111827' }}>Order Confirmation</h1>
+      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>Hello {cust_name},</p>
+      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>You got a new order! Here are the order details:</p>
+      <ul style={{ listStyleType: 'none', padding: '0', marginBottom: '20px' }}>
+        <li style={{ marginBottom: '8px' }}><strong>Order ID:</strong> {order_id}</li>
+        <li style={{ marginBottom: '8px' }}><strong>Amount:</strong> {amount}</li>
+        <li style={{ marginBottom: '8px' }}><strong>Address:</strong> {address}</li>
+        <li style={{ marginBottom: '8px' }}> <strong>Date:</strong> {date_}</li>
+        <li style={{ marginBottom: '8px' }}><strong>From:</strong> {from}</li>
+      </ul>
+      <p style={{ fontSize: '16px', color: '#4B5563' }}>If you have any questions, reply to this email or contact us at {to}.</p>
+    </div>
+  </div>
 );
+
 
 const main = {
   backgroundColor: '#E2E8F0', color: '#000', fontFamily: 'Arial, sans-serif'};

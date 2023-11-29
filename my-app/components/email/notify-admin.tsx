@@ -11,7 +11,8 @@ export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   cust_lname,
   to,
   subject,
-  text
+  text,
+  images
 }) => (
   <div style={{ fontFamily: 'Arial, sans-serif', color: '#374151', padding: '20px' }}>
     <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
@@ -25,6 +26,9 @@ export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
         <li style={{ marginBottom: '8px' }}> <strong>Date:</strong> {date_}</li>
         <li style={{ marginBottom: '8px' }}><strong>From:</strong> {from}</li>
       </ul>
+      {images && images.map((image, index) => (
+        <img key={index} src={image} alt="product" style={{ maxWidth: '100%', marginBottom: '20px' }} />
+      ))}
       <p style={{ fontSize: '16px', color: '#4B5563' }}>If you have any questions, reply to this email or contact us at {to}.</p>
     </div>
   </div>

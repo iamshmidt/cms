@@ -9,4 +9,5 @@ export interface SendEmailInterface {
     to: string;
     subject: string;
     text: string;
+    images?: string[];
 }

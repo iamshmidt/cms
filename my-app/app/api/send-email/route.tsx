@@ -29,7 +29,9 @@ export async function POST(
           cust_lname: requestBody?.cust_lname,
           to: requestBody?.to,
           subject: requestBody?.subject,
-          text: requestBody?.text }) as React.ReactElement,
+          text: requestBody?.text,
+          images: requestBody?.images
+        }) as React.ReactElement,
     });
     console.log('data', data)
     if (error) {

@@ -54,41 +54,128 @@ console.log('addressString', addressString)
         lastName: session?.customer_details?.name || '',
       },
       include: {
-        orderItems: true,
-      }
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     console.log('order', order)
+  
+    // Grouping the orders by month and summing the revenue
+// Loop through each product and get the first image
+order.orderItems.forEach(item => {
+console.log('item', item.productId)
+});
+    
+    //   if (!params.productId) {
+  //     return new NextResponse("Product ID is required", { status: 400 })
+  // }
+
+  // for (const item of order.orderItems) {
+  //   try {
+  //     const product = await prismadb.product.findUnique({
+  //       where: {
+  //           id: item.productId
+  //       },
+  //       include: {
+  //           images: true,
+  //           category: true,
+  //           size: true,
+  //           color: true,
+  //       }});
 
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
+    let imageUrls: string[] = [];
+for (const item of productIds) {
+  console.log('item', item)
+  //get images from prismadb
+  const product = await prismadb.product.findUnique({
+    where: {
+        id: item
+    },
+    include: {
+        images: true,
+        category: true,
+        size: true,
+        color: true,
+    }});
+    console.log('product', product)
+ 
+    const imageUrl = product?.images[0]?.url || '';
+    imageUrls.push(imageUrl);
+    console.log('image', imageUrls)
+        // send email to admin
+        const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
+        console.log('adminEmail', adminEmail)
+         // Prepare the email details
+         const emailDetails: SendEmailInterface = {
+          order_id: order.id,
+          amount: order.amount,
+          address: order.address,
+          date_:order.createdAt,
+          from:order.email,
+          cust_name: order.firstName,
+          cust_lname: order.lastName,
+          to: adminEmail,
+          images: imageUrls,
+          subject: 'Your order is complete!',
+          text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`
+        };
+        if (emailDetails.to) {
+          console.log('Sending email...', emailDetails)
+          try {
+            await sendEmail(emailDetails);
+            console.log('Email sent successfully');
+          } catch (error) {
+            console.error('Failed to send email', error);
+          }
+        }
+    // const productDetail = {
+    //   id: product?.id,
+    //   name: product?.name,
+    //   price: product?.price,
+    //   description: product?.description,
+    //   image,
+    //   category: product?.category?.name,
+    //   size: product?.size?.name,
+    //   color: product?.color?.name,
+    //   amount: order.amount,
+    // };
+    // console.log('productDetail', productDetail)
+    // const productDetails = [productDetail];
+    // console.log('productDetails', productDetails)
+    // // Prepare the email details
+    // const emailDetails: SendEmailInterface = {
+    //   order_id: order.id,
+    //   amount: order.amount,
+    //   address: order.address,
+    //   date_:order.createdAt,
+    //   from:order.email,
+    //   cust_name: order.firstName,
+    //   cust_lname: order.lastName,
+    //   to: order.email,
+    //   subject: 'Your order is complete!',
+    //   text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
+    //   productDetails
+    // };
+    // console.log('emailDetails', emailDetails)
+    // if (emailDetails.to) {
+    //   console.log('Sending email...', emailDetails)
+    //   try {
+    //     await sendEmail(emailDetails);
+    //     console.log('Email sent successfully');
+    //   } catch (error) {
+    //     console.error('Failed to send email', error);
+    //   }
+    // }
+}
+    
 
-    // send email to admin
-    const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
-    console.log('adminEmail', adminEmail)
-     // Prepare the email details
-     const emailDetails: SendEmailInterface = {
-      order_id: order.id,
-      amount: order.amount,
-      address: order.address,
-      date_:order.createdAt,
-      from:order.email,
-      cust_name: order.firstName,
-      cust_lname: order.lastName,
-      to: adminEmail,
-      subject: 'Your order is complete!',
-      text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`
-    };
-    if (emailDetails.to) {
-      console.log('Sending email...', emailDetails)
-      try {
-        await sendEmail(emailDetails);
-        console.log('Email sent successfully');
-      } catch (error) {
-        console.error('Failed to send email', error);
-      }
-    }
 
 
     

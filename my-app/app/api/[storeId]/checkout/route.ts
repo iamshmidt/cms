@@ -19,7 +19,6 @@ export async function POST(
   { params }: { params: { storeId: string } }
 ) {
   const { products } = await req.json();
-console.log('POSTTT')
   console.log( products, 'products')
 
   interface Product {
@@ -74,7 +73,11 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
         product_data: {
           name: product.name,
         },
-        unit_amount: product.price.toNumber() * 100
+        // unit_amount: product.priceAfterDiscount > 0 ? product.priceAfterDiscount * 100 : product.price * 100,
+        // unit_amount: product.priceAfterDiscount.toNumber() > 0 ? product.priceAfterDiscount * 100 : product.price * 100,
+        unit_amount: product.priceAfterDiscount.toNumber() > 0 ? product.priceAfterDiscount.toNumber() * 100 : product.price.toNumber() * 100,
+
+        // unit_amount: product.price.toNumber() * 100
       }
     });
   });

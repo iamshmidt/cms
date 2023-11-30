@@ -30,10 +30,9 @@ export async function POST(
           to: requestBody?.to,
           subject: requestBody?.subject,
           text: requestBody?.text,
-          images: requestBody?.images
+          product: requestBody?.product,
         }) as React.ReactElement,
     });
-    console.log('data', data)
     if (error) {
       return NextResponse.json({ error });
     }

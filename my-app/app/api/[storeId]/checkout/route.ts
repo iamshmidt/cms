@@ -52,7 +52,6 @@ export async function POST(
 // Calculate the total order amount by summing the amounts of order items
 const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
 
-
   const products_ = await prismadb.product.findMany({
     where: {
       id: {
@@ -131,6 +130,32 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
     automatic_tax: {
       enabled: true,
     },
+    shipping_address_collection: {
+      allowed_countries: ['US', 'CA'],
+    },
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: {
+            amount: 600,
+            currency: 'usd',
+          },
+          display_name: 'Delivery estimate',
+          delivery_estimate: {
+            minimum: {
+              unit: 'business_day',
+              value: 4,
+            },
+            maximum: {
+              unit: 'business_day',
+              value: 9,
+            },
+          },
+        },
+      },
+   
+    ],
   });
 
   return NextResponse.json({ url: session.url}, {

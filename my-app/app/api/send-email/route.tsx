@@ -31,6 +31,7 @@ export async function POST(
           subject: requestBody?.subject,
           text: requestBody?.text,
           product: requestBody?.product,
+          total: requestBody?.total,
         }) as React.ReactElement,
     });
     if (error) {

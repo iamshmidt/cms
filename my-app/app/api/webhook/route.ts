@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const address = session?.customer_details?.address;
+  console.log("session?.customer_details",session)
 
   const addressComponents = [
     address?.line1,
@@ -70,79 +71,54 @@ export async function POST(req: Request) {
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
+    console.log('amountProducts',amountProducts)
+    const products = order.orderItems.map((orderItem) => orderItem.amount);
+    interface Product {
+      id: string;
+      amount: number;
+      price: number;
+    }
+    
+
+
+  
+
 
 
     let imageUrls: string[] = [];
     let prices: number[] = [];
-    let price = 0; // Default price
+    let total:number = 0; // Default price
+    let imageDetails = new Map();
     for (const item of productIds) {
-      console.log('item', item)
-      //get images from prismadb
+      console.log('item', item);
       const product = await prismadb.product.findUnique({
-        where: {
-          id: item
-        },
-        include: {
-          images: true,
-          category: true,
-          size: true,
-          color: true,
-        }
+        where: { id: item },
+        include: { images: true, category: true, size: true, color: true }
       });
-      console.log('product', product)
+      console.log('product', product);
       const imageUrl = product?.images[0]?.url || '';
-
-      imageUrls.push(imageUrl);
-      console.log('image', imageUrls)
-      //   export interface ProductEmail {
-      //     id: string;
-      //     name: string;
-      //     price: number;
-      //     url: string;
-      //     image: string;
-      //     product_url: string;
-      // }
-      if (product) {
-        // product is not null, safe to access its properties
-        price = product.priceAfterDiscount && product.priceAfterDiscount.toNumber() > 0
-          ? product.priceAfterDiscount.toNumber()
-          : product.price.toNumber();
-        prices.push(price)
-      }
-
-      const productEmailDetails: ProductEmail = {
-        name: product?.name || '',
-        price: price,
-        url: process.env.FRONTEND_STORE_URL + '/product/' + product?.id || '',
-        image: product?.images[0]?.url || '',
-        product_url: process.env.FRONTEND_STORE_URL + '/product/' + product?.id || '',
-      }
-
-      productsEmailDetails.push(productEmailDetails);
-      console.log('productsEmailDetails', productsEmailDetails) 
-      // Check if product and its necessary fields are available
-      if (product && product.price && product.discount) {
-        if (product.discount > 0) {
-          prices.push(product.priceAfterDiscount.toNumber())
-        } else {
-          prices.push(product.price.toNumber())
-        }
-
-      }
-
-
-
-      let totalPrice = 0;
-      for (const item of prices) {
-        totalPrice += item;
-      }
-
-      // send email to admin
-    
-
+      
+      imageDetails.set(item, imageUrl); // Map the product ID to its image URL
     }
-    const total = productsEmailDetails.reduce((total, item) => total + item.price, 0);
-    console.log('total', total)
+    const productEmailDetails: ProductEmail[] = order.orderItems.map((orderItem) => {
+      // Find the image URL for this product
+      const imageUrl = imageDetails.get(orderItem.productId) || '';
+      const price = orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber();
+      total += price * orderItem.amount;
+      return {
+        name: orderItem.product.name || '',
+        price: orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber(),
+        url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
+        image: imageUrl, // Use the correct image URL
+        product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
+        amount: orderItem.amount || 1,
+
+      };
+    });
+
+    console.log('productEmailDetails', productEmailDetails)
+    // const total = productsEmailDetails.reduce((total, item) => total + item.price, 0);
+    // console.log('total', total)
 
     const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
 
@@ -157,7 +133,8 @@ export async function POST(req: Request) {
       to: adminEmail,
       subject: 'Your order is complete!',
       text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
-      product:  productsEmailDetails,
+      product:  productEmailDetails,
+      total: total,
     };
 
     if (emailDetails.to) {

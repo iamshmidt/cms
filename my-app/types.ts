@@ -4,6 +4,7 @@ export interface ProductEmail {
     url: string;
     image: string;
     product_url: string;
+    amount: number;
 }
 export interface SendEmailInterface {
     order_id: string,
@@ -19,4 +20,5 @@ export interface SendEmailInterface {
     // total: number;
     // product_url: string;
     product?: ProductEmail[]; // Including the Product object
+    total: number;
 }

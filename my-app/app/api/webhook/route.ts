@@ -1,14 +1,19 @@
+
 import Stripe from "stripe"
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 import { stripe } from "@/lib/stripe"
 import prismadb from "@/lib/prismadb"
+import { sendEmail } from "@/hooks/use-email"
+import { SendEmailInterface } from "@/types";
+import { ProductEmail } from "@/types"
+import { format } from "date-fns";
 
 export async function POST(req: Request) {
+  console.log('req', req)
   const body = await req.text()
   const signature = headers().get("Stripe-Signature") as string
-
   let event: Stripe.Event
 
   try {
@@ -18,11 +23,13 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (error: any) {
+    console.log('error', error)
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
   const address = session?.customer_details?.address;
+  console.log("session?.customer_details",session)
 
   const addressComponents = [
     address?.line1,
@@ -33,8 +40,10 @@ export async function POST(req: Request) {
     address?.country
   ];
 
-  const addressString = addressComponents.filter((c) => c !== null).join(', ');
+  let productsEmailDetails: ProductEmail[] = [];
 
+
+  const addressString = addressComponents.filter((c) => c !== null).join(', ');
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {
@@ -49,14 +58,97 @@ export async function POST(req: Request) {
         lastName: session?.customer_details?.name || '',
       },
       include: {
-        orderItems: true,
-      }
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
+
+    console.log('order', order)
 
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
+    console.log('amountProducts',amountProducts)
+    const products = order.orderItems.map((orderItem) => orderItem.amount);
+    interface Product {
+      id: string;
+      amount: number;
+      price: number;
+    }
     
+
+
+  
+
+
+
+    let imageUrls: string[] = [];
+    let prices: number[] = [];
+    let total:number = 0; // Default price
+    let imageDetails = new Map();
+    for (const item of productIds) {
+      console.log('item', item);
+      const product = await prismadb.product.findUnique({
+        where: { id: item },
+        include: { images: true, category: true, size: true, color: true }
+      });
+      console.log('product', product);
+      const imageUrl = product?.images[0]?.url || '';
+      
+      imageDetails.set(item, imageUrl); // Map the product ID to its image URL
+    }
+    const productEmailDetails: ProductEmail[] = order.orderItems.map((orderItem) => {
+      // Find the image URL for this product
+      const imageUrl = imageDetails.get(orderItem.productId) || '';
+      const price = orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber();
+      total += price * orderItem.amount;
+      return {
+        name: orderItem.product.name || '',
+        price: orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber(),
+        url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
+        image: imageUrl, // Use the correct image URL
+        product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
+        amount: orderItem.amount || 1,
+
+      };
+    });
+
+    console.log('productEmailDetails', productEmailDetails)
+    // const total = productsEmailDetails.reduce((total, item) => total + item.price, 0);
+    // console.log('total', total)
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
+
+    const emailDetails: SendEmailInterface = {
+      order_id: order.id,
+      amount: order.amount,
+      address: order.address,
+      date_: format(order.createdAt, 'MMMM do, yyyy'),
+      from: order.email,
+      cust_name: order.firstName,
+      cust_lname: order.lastName,
+      to: adminEmail,
+      subject: 'Your order is complete!',
+      text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
+      product:  productEmailDetails,
+      total: total,
+    };
+
+    if (emailDetails.to) {
+      console.log('Sending email...', emailDetails)
+      try {
+        await sendEmail(emailDetails);
+        console.log('Email sent successfully');
+      } catch (error) {
+        console.error('Failed to send email', error);
+      }
+    }
+
+
+
     // Update product quantities based on the amountProducts array
     await Promise.all(productIds.map(async (productId, index) => {
       await prismadb.product.update({

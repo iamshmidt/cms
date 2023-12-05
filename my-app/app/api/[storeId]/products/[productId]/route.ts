@@ -41,7 +41,8 @@ export async function PATCH(
         const { userId } = auth();
         const body = await req.json();
 
-        const { name, price, quantity, categoryId, sizeId, colorId, images, isFeatured, isArchived } = body;
+        const { name, price, quantity, categoryId, sizeId, colorId, images, isFeatured, isArchived, discount,
+            priceAfterDiscount } = body;
        
 
         if (!userId) {
@@ -100,6 +101,8 @@ export async function PATCH(
                 isFeatured,
                 isArchived,
                 storeId: params.storeId,
+                discount,
+                priceAfterDiscount,
                 images: {
                     deleteMany: {
 

@@ -19,6 +19,7 @@ export async function POST(
   { params }: { params: { storeId: string } }
 ) {
   const { products } = await req.json();
+  console.log( products, 'products')
 
   interface Product {
     id: string;
@@ -51,7 +52,6 @@ export async function POST(
 // Calculate the total order amount by summing the amounts of order items
 const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
 
-
   const products_ = await prismadb.product.findMany({
     where: {
       id: {
@@ -72,7 +72,11 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
         product_data: {
           name: product.name,
         },
-        unit_amount: product.price.toNumber() * 100
+        // unit_amount: product.priceAfterDiscount > 0 ? product.priceAfterDiscount * 100 : product.price * 100,
+        // unit_amount: product.priceAfterDiscount.toNumber() > 0 ? product.priceAfterDiscount * 100 : product.price * 100,
+        unit_amount: product.priceAfterDiscount.toNumber() > 0 ? product.priceAfterDiscount.toNumber() * 100 : product.price.toNumber() * 100,
+
+        // unit_amount: product.price.toNumber() * 100
       }
     });
   });
@@ -89,6 +93,26 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
     },
   });
 
+  // const calculation = await stripe.tax.calculations.create({
+  //   currency: 'usd',
+  //   line_items: [
+  //     {
+  //       amount: 1000,
+  //       reference: 'L1',
+  //     },
+  //   ],
+  //   customer_details: {
+  //     address: {
+  //       line1: '920 5th Ave',
+  //       city: 'Seattle',
+  //       state: 'WA',
+  //       postal_code: '98104',
+  //       country: 'US',
+  //     },
+  //     address_source: 'shipping',
+  //   },
+  
+  // })
 
   const session = await stripe.checkout.sessions.create({
     line_items,
@@ -102,9 +126,39 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
     metadata: {
       orderId: order.id
     },
+    
+    automatic_tax: {
+      enabled: true,
+    },
+    shipping_address_collection: {
+      allowed_countries: ['US', 'CA'],
+    },
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: {
+            amount: 600,
+            currency: 'usd',
+          },
+          display_name: 'Delivery estimate',
+          delivery_estimate: {
+            minimum: {
+              unit: 'business_day',
+              value: 4,
+            },
+            maximum: {
+              unit: 'business_day',
+              value: 9,
+            },
+          },
+        },
+      },
+   
+    ],
   });
 
-  return NextResponse.json({ url: session.url }, {
+  return NextResponse.json({ url: session.url}, {
     headers: corsHeaders
   });
 };

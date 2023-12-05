@@ -534,3 +534,9 @@ console.log(map);
 
 // Output
 // { m1: 'value1', m2: 'value2', stringHere: 'stringValue' }
+
+const checkNums = (num1: number, num2: number): boolean => {
+  return num1 > num2;
+};
+
+console.log(checkNums(1, 2));

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   const session = event.data.object as Stripe.Checkout.Session;
   const address = session?.customer_details?.address;
-  console.log("session?.customer_details",session)
+  console.log("session?.customer_details", session)
 
   const addressComponents = [
     address?.line1,
@@ -71,23 +71,21 @@ export async function POST(req: Request) {
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
-    console.log('amountProducts',amountProducts)
+    console.log('amountProducts', amountProducts)
     const products = order.orderItems.map((orderItem) => orderItem.amount);
     interface Product {
       id: string;
       amount: number;
       price: number;
     }
-    
-
-
-  
 
 
 
-    let imageUrls: string[] = [];
-    let prices: number[] = [];
-    let total:number = 0; // Default price
+
+
+
+
+    let total: number = 0; // Default price
     let imageDetails = new Map();
     for (const item of productIds) {
       console.log('item', item);
@@ -95,9 +93,8 @@ export async function POST(req: Request) {
         where: { id: item },
         include: { images: true, category: true, size: true, color: true }
       });
-      console.log('product', product);
       const imageUrl = product?.images[0]?.url || '';
-      
+
       imageDetails.set(item, imageUrl); // Map the product ID to its image URL
     }
     const productEmailDetails: ProductEmail[] = order.orderItems.map((orderItem) => {
@@ -116,10 +113,6 @@ export async function POST(req: Request) {
       };
     });
 
-    console.log('productEmailDetails', productEmailDetails)
-    // const total = productsEmailDetails.reduce((total, item) => total + item.price, 0);
-    // console.log('total', total)
-
     const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
 
     const emailDetails: SendEmailInterface = {
@@ -133,7 +126,7 @@ export async function POST(req: Request) {
       to: adminEmail,
       subject: 'Your order is complete!',
       text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
-      product:  productEmailDetails,
+      product: productEmailDetails,
       total: total,
     };
 

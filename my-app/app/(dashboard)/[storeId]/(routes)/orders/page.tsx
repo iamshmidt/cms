@@ -41,31 +41,33 @@ const OrdersPage = async ({
 
     const formattedOrder1s: OrderItem[] = orders.map((item, index) => {
         const totalPriceForOrder = item.orderItems.reduce((total, orderItem) => {
-            const itemPrice = orderItem.amount * Number(orderItem.product.price);
+            // Determine the correct price to use (price after discount or regular price)
+            const priceToUse = orderItem.product.priceAfterDiscount.toNumber() > 0
+                ? orderItem.product.priceAfterDiscount.toNumber()
+                : orderItem.product.price.toNumber();
+
+            const itemPrice = orderItem.amount * priceToUse;
             return total + itemPrice;
         }, 0);
-    
+
         const formattedTotalPrice = formatter.format(totalPriceForOrder); // Assuming formatter is a defined formatter object
-    // console.log('formattedTotalPrice', formattedTotalPrice)
+
         return { formattedTotalPrice };
     });
-    
-
     const formattedOrders: OrderColumn[] = orders.map((item, index) => ({
         id: item.id,
         phone: item.phone,
         address: item.address,
-        amount: item.orderItems.length,
+        amount: item.orderItems.reduce((total, orderItem) => total + orderItem.amount, 0),
         orderId: item.id,
-        productId: item.orderItems.map((item:any) => item.product.id).join(', '),
-        products: item.orderItems.map((item:any) => item.product.name).join(', '),
+        productId: item.orderItems.map((item: any) => item.product.id).join(', '),
+        products: item.orderItems.map((item: any) => item.product.name).join(', '),
         isPaid: item.isPaid,
         totalPrice: formattedOrder1s[index].formattedTotalPrice,
         createdAt: format(item.createdAt, 'MMMM dd, yyyy')
     }));
 
     const paidOrders = formattedOrders.filter(order => order.isPaid);
-    console.log('paidOrders', paidOrders)
 
     return (
 

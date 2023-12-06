@@ -82,7 +82,11 @@ const ProductsPage = async ({
         size: item.size.name,
         color: item.color.value,
         createdAt: format(item.createdAt, 'MMMM do, yyyy'),
-        total: formatter.format(item.price.toNumber() * orders[index].amount),
+       total: formatter.format(
+            (item.priceAfterDiscount.toNumber() > 0 
+              ? item.priceAfterDiscount.toNumber() 
+              : item.price.toNumber()) * orders[index].amount
+          ),
       }));
 
       const totalOfTotals = formattedProduct.reduce((total, product) => {

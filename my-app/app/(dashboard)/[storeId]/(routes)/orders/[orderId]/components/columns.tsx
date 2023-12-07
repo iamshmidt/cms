@@ -15,6 +15,8 @@ export type OrderColumn = {
   color: string
   createdAt: string
   total: string
+  trackingNumber?: string
+  status?: string
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [

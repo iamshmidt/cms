@@ -20,7 +20,7 @@ const ProductsPage = async ({
         },
     })
 
-    console.log('orders', orders)
+
 
     const order = await prismadb.order.findMany({
         where: {
@@ -37,7 +37,7 @@ const ProductsPage = async ({
             createdAt: 'desc'
         }
     });
-
+    console.log('orders', order.map(item => item.status));
 
 
     const productIds = orders.map(order => order.productId);
@@ -71,7 +71,9 @@ const ProductsPage = async ({
         return totalCost; 
       }
 
-
+    //   order.map(item => item.status)
+    const statusOrder = order.map(item => item.status);
+    const trackingNumber_ = order.map(item => item.trackingNumber);
 
     const formattedProduct: OrderColumn[] = products.map((item, index) => ({
         id: item.id,
@@ -82,11 +84,13 @@ const ProductsPage = async ({
         size: item.size.name,
         color: item.color.value,
         createdAt: format(item.createdAt, 'MMMM do, yyyy'),
-       total: formatter.format(
+        total: formatter.format(
             (item.priceAfterDiscount.toNumber() > 0 
               ? item.priceAfterDiscount.toNumber() 
               : item.price.toNumber()) * orders[index].amount
           ),
+        status: statusOrder,
+        trackingNumber: trackingNumber_[index] ?? '',
       }));
 
       const totalOfTotals = formattedProduct.reduce((total, product) => {

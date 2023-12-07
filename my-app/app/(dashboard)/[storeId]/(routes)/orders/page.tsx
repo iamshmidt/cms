@@ -54,6 +54,7 @@ const OrdersPage = async ({
 
         return { formattedTotalPrice };
     });
+
     const formattedOrders: OrderColumn[] = orders.map((item, index) => ({
         id: item.id,
         phone: item.phone,
@@ -64,10 +65,12 @@ const OrdersPage = async ({
         products: item.orderItems.map((item: any) => item.product.name).join(', '),
         isPaid: item.isPaid,
         totalPrice: formattedOrder1s[index].formattedTotalPrice,
-        createdAt: format(item.createdAt, 'MMMM dd, yyyy')
+        createdAt: format(item.createdAt, 'MMMM dd, yyyy'),
+        status: item.status,
     }));
 
     const paidOrders = formattedOrders.filter(order => order.isPaid);
+
 
     return (
 

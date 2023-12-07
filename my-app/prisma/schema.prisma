@@ -249,7 +249,8 @@ model Order {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   orderDetails OrderDetails[] // Relation to OrderDetails model
-
+  status       String         @default("pending")
+  trackingNumber  String         @default("")
   @@index([storeId])
 }
 

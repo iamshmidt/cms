@@ -7,6 +7,7 @@ import { SendEmailInterface} from "@/types";
 // Function to send an email using the provided email service API
 // export async function sendEmail({ to, subject, text }: SendEmailInterface): Promise<any> {
 export async function sendEmail(emailDetails: SendEmailInterface): Promise<{ data?: any; error?: string }> {
+    console.log('emailDetails', emailDetails)
     // console.log('sendEmail!!', to, subject, text)
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000'; // Use your deployment base URL in production
     const sendEmailUrl = `${baseUrl}/api/send-email`;

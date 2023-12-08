@@ -34,6 +34,8 @@ export async function POST(
           total: requestBody?.total,
         }) as React.ReactElement,
     });
+
+    console.log('data', data)
     if (error) {
       return NextResponse.json({ error });
     }

@@ -3,6 +3,7 @@ import { OrderClient } from "./components/client";
 import { OrderColumn } from "./components/columns";
 import { format } from 'date-fns';
 import { formatter } from "@/lib/utils";
+import { FaRegCheckSquare } from "react-icons/fa";
 
 const OrdersPage = async ({
     params,
@@ -66,7 +67,7 @@ const OrdersPage = async ({
         isPaid: item.isPaid,
         totalPrice: formattedOrder1s[index].formattedTotalPrice,
         createdAt: format(item.createdAt, 'MMMM dd, yyyy'),
-        status: item.status,
+        status: item.status
     }));
 
     const paidOrders = formattedOrders.filter(order => order.isPaid);

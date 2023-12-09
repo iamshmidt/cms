@@ -47,7 +47,7 @@ export const ProductClient: React.FC<ProductClientProps> = ({
 }) => {
 const trackingNumbers = data?.map(orderColumn => orderColumn.trackingNumber) || '';
 const statusOrder = data?.map(orderColumn => orderColumn.status) || '';
-console.log(data)
+console.log(data[0].orderNumber)
 const form = useForm<trackingValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,77 +60,30 @@ const [open, setOpen] = useState(false)
 const [loading, setLoading] = useState(false)
 const toastMessage = trackingNumbers[0] !== '' ? "Tracking added" : "Tracking updated";
 
-// export interface ProductEmail {
-//     name: string;
-//     price: number;
-//     url: string;
-//     image: string;
-//     product_url: string;
-//     amount: number;
-// }
-// export interface SendEmailInterface {
-//     order_id: string,
-//     amount: number,
-//     address: string,
-//     date_: string,
-//     from: string;
-//     cust_name: string;
-//     cust_lname: string,
-//     to: string;
-//     subject: string;
-//     text: string;
-//     // total: number;
-//     // product_url: string;
-//     product?: ProductEmail[]; // Including the Product object
-//     total: number;
-// }
-
-
-
 const productEmailDetails:ProductEmail[] = data?.map((orderItem) => {
-    // Assuming images is an array of URLs (strings)
     const imageUrl = orderItem.images?.[0] || '';
-    console.log('frontend_url', frontend_url)
 
-    // Correct parentheses usage for fallback
     const productUrl = frontend_url + '/product/' + (orderItem.id || '');
 
-    console.log('productUrl', productUrl)
 
     return {
       name: orderItem.name || '',
       price: orderItem.price,
-    //   price:  orderItem.priceAfterDiscount.toNumber() > 0 ? orderItem.priceAfterDiscount.toNumber() : orderItem.price.toNumber(),
       url: productUrl,
       image: imageUrl,
       product_url: productUrl,
       amount: orderItem.quantity || 1,
-        // from: orderItem.customer?.email || '',
-        // subject: 'Your order is shipped!',
-        // text: `tracking number: ${orderItem.trackingNumber}`,
         
     };
 });
 console.log(productEmailDetails);
 
-// const emailDetails: SendEmailInterface = {
-//     order_id: order.id,
-//     amount: order.amount,
-//     address: order.address,
-//     date_: format(order.createdAt, 'MMMM do, yyyy'),
-//     from: order.email,
-//     cust_name: order.firstName,
-//     cust_lname: order.lastName,
-//     to: adminEmail,
-//     subject: 'Your order is complete!',
-//     text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
-//     product: productEmailDetails,
-//     total: total,
-//   };
+
 
 const emailDetails: SendEmailInterface = {
-    order_id: params.orderId.toString(),
+    // order_id: params.orderId.toString(),
     // amount: totalPrice(),
+    orderNumber: data[0]?.orderNumber || 0,
     address: data[0]?.customer?.address || '',
     date_: data[0]?.createdAt || '',
     from: data[0]?.customer?.email || '',
@@ -140,50 +93,10 @@ const emailDetails: SendEmailInterface = {
     subject: 'Your order is shipped!',
     text: `tracking number: ${trackingNumbers[0]}`,
     product: productEmailDetails,
+    tracking: trackingNumbers[0],
     // total: totalPrice(),
   };
 
-// const emailDetails: SendEmailInterface = {
-//     order_id: order.id,
-//     amount: order.amount,
-//     address: order.address,
-//     date_: format(order.createdAt, 'MMMM do, yyyy'),
-//     from: order.email,
-//     cust_name: order.firstName,
-//     cust_lname: order.lastName,
-//     to: adminEmail,
-//     subject: 'Your order is complete!',
-//     text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
-//     product: productEmailDetails,
-//     total: total,
-//   };
-
-//   const productEmailDetails: ProductEmail[] = order.orderItems.map((orderItem) => {
-//     // Find the image URL for this product
-//     const imageUrl = imageDetails.get(orderItem.productId) || '';
-//     const price = orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber();
-//     total += price * orderItem.amount;
-//     return {
-//       name: orderItem.product.name || '',
-//       price: orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber(),
-//       url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
-//       image: imageUrl, // Use the correct image URL
-//       product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
-//       amount: orderItem.amount || 1,
-
-//     };
-//   });
-
-
-//   if (emailDetails.to) {
-//     console.log('Sending email...', emailDetails)
-//     try {
-//       await sendEmail(emailDetails);
-//       console.log('Email sent successfully');
-//     } catch (error) {
-//       console.error('Failed to send email', error);
-//     }
-//   }
 
 const onSubmit = async (data: trackingValues) => {
 
@@ -217,21 +130,6 @@ const notifyCustomer = async () => {
     }
 
 }
-// customer: {
-//     name: 'Yuliia Shmidt',
-//     email: 'yuliia.shmidt@gmail.com',
-//     phone: '+16313817717',
-//     address: '110 Commons Park N Apt 760, Stamford, CT, 06902, US'
-//   }
-// if (emailDetails.to) {
-//     console.log('Sending email...', emailDetails)
-//     try {
-//       await sendEmail(emailDetails);
-//       console.log('Email sent successfully');
-//     } catch (error) {
-//       console.error('Failed to send email', error);
-//     }
-//   }
     return (
         <>
             <div className="flex items-center justify-between">

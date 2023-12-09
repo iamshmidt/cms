@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
 
     const emailDetails: SendEmailInterface = {
-      order_id: order.id,
+      orderNumber: order.orderNumber,
       amount: order.amount,
       address: order.address,
       date_: format(order.createdAt, 'MMMM do, yyyy'),

@@ -13,14 +13,12 @@ export async function POST(
 ) {
   try {
     const requestBody = await req.json();
-    console.log('requestBody', requestBody)
-    console.log('requestBody', requestBody.order_id)
     const { data, error } = await resend.emails.send({
         from: 'OxxyKnits <onboarding@resend.dev>',
         // to: ['yuliia.shmidt@gmail.com'],
         to: [adminEmail, requestBody.from || 'yuliia.shmidt@gmail.com'],
         subject: requestBody?.subject,
-        react: EmailTemplate({  order_id: requestBody.order_id,
+        react: EmailTemplate({  orderNumber: requestBody.orderNumber,
           amount: requestBody?.amount,
           address: requestBody?.address,
           date_: requestBody?.date,
@@ -32,6 +30,7 @@ export async function POST(
           text: requestBody?.text,
           product: requestBody?.product,
           total: requestBody?.total,
+          tracking: requestBody?.tracking,
         }) as React.ReactElement,
     });
 

@@ -38,23 +38,8 @@ const ProductsPage = async ({
             createdAt: 'desc'
         }
     });
-    console.log('orders', order);
 
-    // const productEmailDetails: ProductEmail[] = order.orderItems.map((orderItem) => {
-    //     // Find the image URL for this product
-    //     const imageUrl = imageDetails.get(orderItem.productId) || '';
-    //     const price = orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber();
-    //     total += price * orderItem.amount;
-    //     return {
-    //       name: orderItem.product.name || '',
-    //       price: orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber(),
-    //       url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
-    //       image: imageUrl, // Use the correct image URL
-    //       product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
-    //       amount: orderItem.amount || 1,
-  
-    //     };
-    //   });
+    console.log('order',order)
     const productIds = orders.map(order => order.productId);
 
     const products = await prismadb.product.findMany({
@@ -89,6 +74,7 @@ const ProductsPage = async ({
     //   order.map(item => item.status)
     const statusOrder = order.map(item => item.status);
     const trackingNumber_ = order.map(item => item.trackingNumber);
+    const orderNumber_ = order.map(item => item.orderNumber);
 
     const customer_info:CustomerInfoEmail[]= order.map((item, index) => ({
         name: item.firstName,
@@ -100,12 +86,12 @@ const ProductsPage = async ({
     const formattedProduct = products.map((item, index) => {
         // Assuming 'orders' array corresponds to 'products' array by index
         const orderItem = orders[index];
-    
         // Calculate price
         const price = item.priceAfterDiscount.toNumber() > 0 ? item.priceAfterDiscount.toNumber() : item.price.toNumber();
     
         return {
             id: item.id,
+            orderNumber: orderNumber_[index],
             name: item.name,
             quantity: orderItem.amount, // Assuming 'amount' exists on orderItem
             price: formatter.format(price),
@@ -131,6 +117,7 @@ const ProductsPage = async ({
       
 
     const formattedClient: CustomerInfo[] = order.map((item, index) => ({
+        orderNumber: item.orderNumber,
         phone: item.phone,
         address: item.address,
         email: item.email,

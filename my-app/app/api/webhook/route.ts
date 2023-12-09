@@ -9,6 +9,7 @@ import { sendEmail } from "@/hooks/use-email"
 import { SendEmailInterface } from "@/types";
 import { ProductEmail } from "@/types"
 import { format } from "date-fns";
+import { formatter } from "@/lib/utils"
 
 export async function POST(req: Request) {
   console.log('req', req)
@@ -66,7 +67,6 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log('order', order)
 
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
       total += price * orderItem.amount;
       return {
         name: orderItem.product.name || '',
-        price: orderItem.product.priceAfterDiscount.toNumber() > 0 ? orderItem.product.priceAfterDiscount.toNumber() : orderItem.product.price.toNumber(),
+        price: formatter.format(price),
         url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
         image: imageUrl, // Use the correct image URL
         product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     const adminEmail = process.env.ADMIN_EMAIL || 'yuliia.shmidt@gmail.com';
 
     const emailDetails: SendEmailInterface = {
-      order_id: order.id,
+      orderNumber: order.orderNumber,
       amount: order.amount,
       address: order.address,
       date_: format(order.createdAt, 'MMMM do, yyyy'),

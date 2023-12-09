@@ -1,11 +1,12 @@
 
 import prismadb from "@/lib/prismadb";
 import { ProductClient } from "./components/client";
-import { OrderColumn } from "./components/columns";
+import { CustomerInfoEmail, OrderColumn } from "./components/columns";
 import {CustomerInfo} from "./components/columns-customer";
 import {Customer} from "./components/client";
 import {format} from 'date-fns';
 import { formatter } from "@/lib/utils";
+import { ProductEmail } from "@/types";
 
 const ProductsPage = async ({
     params,
@@ -20,7 +21,7 @@ const ProductsPage = async ({
         },
     })
 
-    console.log('orders', orders)
+
 
     const order = await prismadb.order.findMany({
         where: {
@@ -38,8 +39,7 @@ const ProductsPage = async ({
         }
     });
 
-
-
+    console.log('order',order)
     const productIds = orders.map(order => order.productId);
 
     const products = await prismadb.product.findMany({
@@ -52,7 +52,7 @@ const ProductsPage = async ({
             category:true,
             size:true,
             color:true,
-            
+            images: true
         },
         orderBy: {
             createdAt: 'desc'
@@ -71,23 +71,45 @@ const ProductsPage = async ({
         return totalCost; 
       }
 
+    //   order.map(item => item.status)
+    const statusOrder = order.map(item => item.status);
+    const trackingNumber_ = order.map(item => item.trackingNumber);
+    const orderNumber_ = order.map(item => item.orderNumber);
 
+    const customer_info:CustomerInfoEmail[]= order.map((item, index) => ({
+        name: item.firstName,
+        email: item.email,
+        phone: item.phone,
+        address: item.address,
+    }))
 
-    const formattedProduct: OrderColumn[] = products.map((item, index) => ({
-        id: item.id,
-        name: item.name,
-        quantity: orders[index].amount,
-        price: formatter.format(item.price.toNumber()),
-        category: item.category.name,
-        size: item.size.name,
-        color: item.color.value,
-        createdAt: format(item.createdAt, 'MMMM do, yyyy'),
-       total: formatter.format(
-            (item.priceAfterDiscount.toNumber() > 0 
-              ? item.priceAfterDiscount.toNumber() 
-              : item.price.toNumber()) * orders[index].amount
-          ),
-      }));
+    const formattedProduct = products.map((item, index) => {
+        // Assuming 'orders' array corresponds to 'products' array by index
+        const orderItem = orders[index];
+        // Calculate price
+        const price = item.priceAfterDiscount.toNumber() > 0 ? item.priceAfterDiscount.toNumber() : item.price.toNumber();
+    
+        return {
+            id: item.id,
+            orderNumber: orderNumber_[index],
+            name: item.name,
+            quantity: orderItem.amount, // Assuming 'amount' exists on orderItem
+            price: formatter.format(price),
+            category: item.category.name,
+            images: item.images.map(image => image.url),
+            size: item.size.name,
+            color: item.color.value,
+            createdAt: format(item.createdAt, 'MMMM do, yyyy'),
+            total: formatter.format(price * orderItem.amount),
+            status: statusOrder.toString(),
+            trackingNumber: trackingNumber_[index] ?? '',
+            customer: customer_info[index],
+        };
+    });
+    
+
+      console.log('products',products)
+    
 
       const totalOfTotals = formattedProduct.reduce((total, product) => {
         return total + parseFloat(product.total.replace(/[^0-9.-]+/g, ''));
@@ -95,6 +117,7 @@ const ProductsPage = async ({
       
 
     const formattedClient: CustomerInfo[] = order.map((item, index) => ({
+        orderNumber: item.orderNumber,
         phone: item.phone,
         address: item.address,
         email: item.email,
@@ -102,6 +125,7 @@ const ProductsPage = async ({
         lastName: item.lastName,
         totalPrice: formatter.format(totalOfTotals),
       }));
+
 
     return (
 

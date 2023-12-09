@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 
 export type CustomerInfo = {
+  orderNumber: number
     phone: string
     address: string
     email: string

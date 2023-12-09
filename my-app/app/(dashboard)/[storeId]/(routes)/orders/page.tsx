@@ -3,6 +3,7 @@ import { OrderClient } from "./components/client";
 import { OrderColumn } from "./components/columns";
 import { format } from 'date-fns';
 import { formatter } from "@/lib/utils";
+import { FaRegCheckSquare } from "react-icons/fa";
 
 const OrdersPage = async ({
     params,
@@ -54,8 +55,10 @@ const OrdersPage = async ({
 
         return { formattedTotalPrice };
     });
+
     const formattedOrders: OrderColumn[] = orders.map((item, index) => ({
         id: item.id,
+        orderNumber: item.orderNumber,
         phone: item.phone,
         address: item.address,
         amount: item.orderItems.reduce((total, orderItem) => total + orderItem.amount, 0),
@@ -64,10 +67,12 @@ const OrdersPage = async ({
         products: item.orderItems.map((item: any) => item.product.name).join(', '),
         isPaid: item.isPaid,
         totalPrice: formattedOrder1s[index].formattedTotalPrice,
-        createdAt: format(item.createdAt, 'MMMM dd, yyyy')
+        createdAt: format(item.createdAt, 'MMMM dd, yyyy'),
+        status: item.status
     }));
 
     const paidOrders = formattedOrders.filter(order => order.isPaid);
+
 
     return (
 

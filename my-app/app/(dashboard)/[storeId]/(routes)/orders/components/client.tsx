@@ -10,6 +10,7 @@ interface OrderClientProps {
     data: OrderColumn[]
 }
 
+
 export const OrderClient: React.FC<OrderClientProps> = ({
     data
 }) => {

@@ -1,14 +1,14 @@
 export interface ProductEmail {
     name: string;
-    price: number;
+    price: string;
     url: string;
     image: string;
     product_url: string;
     amount: number;
 }
 export interface SendEmailInterface {
-    order_id: string,
-    amount: number,
+    orderNumber: number,
+    amount?: number,
     address: string,
     date_: string,
     from: string;
@@ -20,5 +20,6 @@ export interface SendEmailInterface {
     // total: number;
     // product_url: string;
     product?: ProductEmail[]; // Including the Product object
-    total: number;
+    total?: number;
+    tracking?: string;
 }

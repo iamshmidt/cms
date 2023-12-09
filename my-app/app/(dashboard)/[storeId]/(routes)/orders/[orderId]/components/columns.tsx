@@ -3,18 +3,28 @@
 import { ColumnDef } from "@tanstack/react-table"
 
 
-
+export type CustomerInfoEmail = {
+  name: string
+  email: string
+  phone: string
+  address: string
+}
 
 export type OrderColumn = {
   id: string
+  orderNumber?: number
   name: string
   quantity: number
   price: string
   category: string
+  images?: string[]
   size: string
   color: string
   createdAt: string
   total: string
+  trackingNumber?: string
+  status?: string
+  customer?: CustomerInfoEmail
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [

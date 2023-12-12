@@ -19,6 +19,7 @@ export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   // Calculate the total
   let shipping = 6.00;
 // Calculate the total price of the products.
+console.log('text', text)
 
 let trackingUrl = `https://tools.usps.com/go/TrackConfirmAction?tLabels=${tracking}`;
 let shipping_total = (total || 0) + shipping;
@@ -30,7 +31,7 @@ let shipping_total = (total || 0) + shipping;
         <a href="https://oxxyknits.com"><img src="https://i.imgur.com/nprAA9n.png" alt="Logo" style={imageStyle} /></a>
       </div>
       <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>Hi {cust_name},</h3>
-      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>We've got your order! We'll drop you another email when your order ships.</p>
+      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>{text}</p>
     </div>
     <h2 style={{ textAlign: 'center' }}>ORDER NO.  {orderNumber}</h2>
   

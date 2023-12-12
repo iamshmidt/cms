@@ -108,9 +108,6 @@ const ProductsPage = async ({
     });
     
 
-      console.log('products',products)
-    
-
       const totalOfTotals = formattedProduct.reduce((total, product) => {
         return total + parseFloat(product.total.replace(/[^0-9.-]+/g, ''));
       }, 0);

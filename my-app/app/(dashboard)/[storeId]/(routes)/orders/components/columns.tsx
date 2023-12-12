@@ -7,7 +7,7 @@ import CellLink from "./cell-link"
 
 export type OrderColumn = {
   id: string
-  orderNumber: number
+  orderNumber: string
   phone: string
   address: string
   isPaid: boolean
@@ -26,11 +26,11 @@ export const columns: ColumnDef<OrderColumn>[] = [
     accessorKey: "products",
     header: "Products",
     cell: ({ row }) => <CellLink data={row.original} />
-
   },
   {
     accessorKey:"orderNumber",
     header: "Order Number",
+    
   },
   {
     accessorKey: "phone",

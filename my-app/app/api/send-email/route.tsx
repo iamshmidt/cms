@@ -13,6 +13,7 @@ export async function POST(
 ) {
   try {
     const requestBody = await req.json();
+    console.log('requestBody', requestBody)
     const { data, error } = await resend.emails.send({
         from: 'OxxyKnits <onboarding@resend.dev>',
         // to: ['yuliia.shmidt@gmail.com'],

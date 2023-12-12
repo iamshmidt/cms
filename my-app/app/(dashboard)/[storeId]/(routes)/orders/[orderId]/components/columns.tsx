@@ -12,7 +12,7 @@ export type CustomerInfoEmail = {
 
 export type OrderColumn = {
   id: string
-  orderNumber?: number
+  orderNumber: number
   name: string
   quantity: number
   price: string

@@ -17,6 +17,7 @@ export const customerColumn: ColumnDef<CustomerInfo>[] = [
       accessorKey: "name",
       header: "Name",
     },
+
     {
       accessorKey: "email",
       header: "Email",

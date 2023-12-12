@@ -45,6 +45,7 @@ export async function POST(req: Request) {
 
 
   const addressString = addressComponents.filter((c) => c !== null).join(', ');
+  console.log('event', event)
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {
@@ -68,10 +69,9 @@ export async function POST(req: Request) {
     });
 
 
-
+    console.log('order.orderItems', order.orderItems)
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
-    console.log('amountProducts', amountProducts)
     const products = order.orderItems.map((orderItem) => orderItem.amount);
     interface Product {
       id: string;
@@ -88,7 +88,6 @@ export async function POST(req: Request) {
     let total: number = 0; // Default price
     let imageDetails = new Map();
     for (const item of productIds) {
-      console.log('item', item);
       const product = await prismadb.product.findUnique({
         where: { id: item },
         include: { images: true, category: true, size: true, color: true }
@@ -109,7 +108,6 @@ export async function POST(req: Request) {
         image: imageUrl, // Use the correct image URL
         product_url: process.env.FRONTEND_STORE_URL + '/product/' + orderItem.product.id || '',
         amount: orderItem.amount || 1,
-
       };
     });
 
@@ -125,7 +123,7 @@ export async function POST(req: Request) {
       cust_lname: order.lastName,
       to: adminEmail,
       subject: 'Your order is complete!',
-      text: `Thank you for your order. Your order is now complete and will be shipped to you shortly.`,
+      text: `We've got your order! We'll drop you another email when your order ships.`,
       product: productEmailDetails,
       total: total,
     };
@@ -139,7 +137,6 @@ export async function POST(req: Request) {
         console.error('Failed to send email', error);
       }
     }
-
 
 
     // Update product quantities based on the amountProducts array

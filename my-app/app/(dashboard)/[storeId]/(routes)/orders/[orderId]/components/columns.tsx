@@ -16,6 +16,7 @@ export type OrderColumn = {
   name: string
   quantity: number
   price: string
+  discount?: number
   category: string
   images?: string[]
   size: string
@@ -35,6 +36,10 @@ export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "price",
     header: "Price",
+  },
+  {
+    accessorKey: "discount",
+    header: "Discount",
   },
   {
     accessorKey: "quantity",

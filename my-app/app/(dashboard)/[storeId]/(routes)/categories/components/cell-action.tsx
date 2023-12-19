@@ -32,6 +32,9 @@ const CellAction: React.FC<CellActionProps> = ({
           router.refresh();
         } catch (error) {
           toast.error('Make sure you removed all products using this category first.');
+          setTimeout(() => {
+            window.location.reload();
+        }, 3000);
         } finally {
           setOpen(false);
           setLoading(false);
@@ -41,6 +44,11 @@ const CellAction: React.FC<CellActionProps> = ({
         navigator.clipboard.writeText(id);
         toast.success("Category id copied to the clipboard");
     }
+    const handleCloseModal = () => {
+        setOpen(false); // Close the modal
+        setLoading(false); // Reset loading state
+        window.location.reload();
+    };
     const onDelete = async () => {
         try {
             setLoading(true)
@@ -58,7 +66,7 @@ const CellAction: React.FC<CellActionProps> = ({
     return (
         <>
         <AlertModal isOpen={open}
-        onClose={()=>setOpen(false)} onConfirm={onConfirm} loading={loading}></AlertModal>
+        onClose={handleCloseModal} onConfirm={onConfirm} loading={loading}></AlertModal>
         <DropdownMenu >
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-8">

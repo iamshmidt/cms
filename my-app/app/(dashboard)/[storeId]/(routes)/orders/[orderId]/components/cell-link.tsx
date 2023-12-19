@@ -47,9 +47,6 @@ const CellLink: React.FC<CellLinkProps> = ({
         }
     }
 
-    console.log('data', data)
-    // const names: string[] = data.map((item:string) => item.name).join(', ');
-    // data.map((item) => item.name).join(', '),
 
     return (
         <>

@@ -37,16 +37,23 @@ const CellAction: React.FC<CellActionProps> = ({
             toast.success("color deleted")
         } catch (error) {
             toast.error("Make sure you removed all products using this color.")
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         } finally {
             setLoading(false)
             setOpen(false)
         }
     }
-
+    const handleCloseModal = () => {
+        setOpen(false); // Close the modal
+        setLoading(false); // Reset loading state
+        window.location.reload();
+    };
     return (
         <>
         <AlertModal isOpen={open}
-        onClose={()=>setOpen(false)} onConfirm={onDelete} loading={loading}></AlertModal>
+        onClose={handleCloseModal} onConfirm={onDelete} loading={loading}></AlertModal>
         <DropdownMenu >
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-8">

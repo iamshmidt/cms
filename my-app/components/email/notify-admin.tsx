@@ -1,6 +1,7 @@
 
 import { SendEmailInterface} from "@/types";
 import logoImage from '@/public/4.png';
+import { formatter } from "@/lib/utils";
 export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   orderNumber,
   amount,
@@ -19,7 +20,6 @@ export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   // Calculate the total
   let shipping = 6.00;
 // Calculate the total price of the products.
-console.log('text', text)
 
 let trackingUrl = `https://tools.usps.com/go/TrackConfirmAction?tLabels=${tracking}`;
 let shipping_total = (total || 0) + shipping;
@@ -77,7 +77,8 @@ let shipping_total = (total || 0) + shipping;
           <>
         <tr>
           <td>Subtotal</td>
-          <td><strong>${total}</strong></td>
+          {/* <td><strong>${total}</strong></td> */}
+          <td><strong>{formatter.format(total)}</strong></td>
         </tr>
         <tr>
           <td>Shipping (4-9 days)</td>

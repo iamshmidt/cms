@@ -95,6 +95,7 @@ const ProductsPage = async ({
             name: item.name,
             quantity: orderItem.amount, // Assuming 'amount' exists on orderItem
             price: formatter.format(price),
+            discount: item.discount,
             category: item.category.name,
             images: item.images.map(image => image.url),
             size: item.size.name,
@@ -106,9 +107,6 @@ const ProductsPage = async ({
             customer: customer_info[index],
         };
     });
-    
-
-      console.log('products',products)
     
 
       const totalOfTotals = formattedProduct.reduce((total, product) => {

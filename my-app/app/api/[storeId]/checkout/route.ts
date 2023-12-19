@@ -19,14 +19,14 @@ export async function POST(
   { params }: { params: { storeId: string } }
 ) {
   const { products } = await req.json();
-  console.log( products, 'products')
+  console.log(products, 'products')
 
   interface Product {
     id: string;
     amount: number;
     quantity: number;
   }
-  
+
   const productsIds: string[] = products.map((product: Product) => product.id);
 
 
@@ -41,7 +41,7 @@ export async function POST(
     return new NextResponse("Product ids are required", { status: 400 });
   }
 
-  const orderItemsToCreate = productDetails.map((productDetail:any) => ({
+  const orderItemsToCreate = productDetails.map((productDetail: any) => ({
     product: {
       connect: { id: productDetail.id },
     },
@@ -49,8 +49,8 @@ export async function POST(
   }));
 
 
-// Calculate the total order amount by summing the amounts of order items
-const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => total + item.amount, 0);
+  // Calculate the total order amount by summing the amounts of order items
+  const totalOrderAmount = orderItemsToCreate.reduce((total: any, item: any) => total + item.amount, 0);
 
   const products_ = await prismadb.product.findMany({
     where: {
@@ -61,7 +61,7 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
   });
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
- 
+
   products_.forEach((product) => {
     const matchingProductDetails = productDetails.find((item) => product.id === item.id);
 
@@ -80,7 +80,7 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
       }
     });
   });
-  
+
 
   const order = await prismadb.order.create({
     data: {
@@ -111,13 +111,14 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
   //     },
   //     address_source: 'shipping',
   //   },
-  
+
   // })
 
   const session = await stripe.checkout.sessions.create({
     line_items,
     mode: 'payment',
     billing_address_collection: 'required',
+
     phone_number_collection: {
       enabled: true,
     },
@@ -126,7 +127,7 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
     metadata: {
       orderId: order.id
     },
-    
+
     shipping_address_collection: {
       allowed_countries: ['US', 'CA'],
     },
@@ -139,6 +140,7 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
             currency: 'usd',
           },
           display_name: 'Delivery estimate',
+
           delivery_estimate: {
             minimum: {
               unit: 'business_day',
@@ -151,11 +153,11 @@ const totalOrderAmount = orderItemsToCreate.reduce((total:any, item:any) => tota
           },
         },
       },
-   
+
     ],
   });
 
-  return NextResponse.json({ url: session.url}, {
+  return NextResponse.json({ url: session.url }, {
     headers: corsHeaders
   });
 };

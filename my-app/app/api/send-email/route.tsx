@@ -21,7 +21,7 @@ export async function POST(
         react: EmailTemplate({  orderNumber: requestBody.orderNumber,
           amount: requestBody?.amount,
           address: requestBody?.address,
-          date_: requestBody?.date,
+          date_: requestBody?.date_,
           from: requestBody?.from,
           cust_name: requestBody?.cust_name,
           cust_lname: requestBody?.cust_lname,
@@ -34,7 +34,6 @@ export async function POST(
         }) as React.ReactElement,
     });
 
-    console.log('data', data)
     if (error) {
       return NextResponse.json({ error });
     }

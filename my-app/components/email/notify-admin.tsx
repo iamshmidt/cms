@@ -1,6 +1,7 @@
 
 import { SendEmailInterface} from "@/types";
 import logoImage from '@/public/4.png';
+import { formatter } from "@/lib/utils";
 export const EmailTemplate: React.FC<Readonly<SendEmailInterface>> = ({
   orderNumber,
   amount,
@@ -30,7 +31,7 @@ let shipping_total = (total || 0) + shipping;
         <a href="https://oxxyknits.com"><img src="https://i.imgur.com/nprAA9n.png" alt="Logo" style={imageStyle} /></a>
       </div>
       <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>Hi {cust_name},</h3>
-      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>We've got your order! We'll drop you another email when your order ships.</p>
+      <p style={{ marginBottom: '16px', fontSize: '16px', color: '#4B5563' }}>{text}</p>
     </div>
     <h2 style={{ textAlign: 'center' }}>ORDER NO.  {orderNumber}</h2>
   
@@ -76,7 +77,8 @@ let shipping_total = (total || 0) + shipping;
           <>
         <tr>
           <td>Subtotal</td>
-          <td><strong>${total}</strong></td>
+          {/* <td><strong>${total}</strong></td> */}
+          <td><strong>{formatter.format(total)}</strong></td>
         </tr>
         <tr>
           <td>Shipping (4-9 days)</td>

@@ -43,7 +43,6 @@ export async function PATCH(
 
         const { name, price, quantity, categoryId, sizeId, colorId, images, isFeatured, isArchived, discount,
             priceAfterDiscount } = body;
-       console.log(body)
 
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 })

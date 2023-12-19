@@ -24,7 +24,9 @@ export async function POST(
   interface Product {
     id: string;
     amount: number;
-    quantity: number;
+    discount: number;
+    price: number;
+    priceAfterDiscount: number;
   }
 
   const productsIds: string[] = products.map((product: Product) => product.id);
@@ -33,25 +35,21 @@ export async function POST(
   const productDetails: Product[] = products.map((product: Product) => ({
     id: product.id,
     amount: product.amount,
-    quantity: product.quantity,
   }));
+
+  console.log(productDetails, 'productDetails')
 
 
   if (!productsIds || productsIds.length === 0) {
     return new NextResponse("Product ids are required", { status: 400 });
   }
 
-  const orderItemsToCreate = productDetails.map((productDetail: any) => ({
-    product: {
-      connect: { id: productDetail.id },
-    },
-    amount: productDetail.amount,
-  }));
-
-
-  // Calculate the total order amount by summing the amounts of order items
-  const totalOrderAmount = orderItemsToCreate.reduce((total: any, item: any) => total + item.amount, 0);
-
+  // const orderItemsToCreate = productDetails.map((productDetail: any) => ({
+  //   product: {
+  //     connect: { id: productDetail.id },
+  //   },
+  //   amount: productDetail.amount,
+  // }));
   const products_ = await prismadb.product.findMany({
     where: {
       id: {
@@ -59,6 +57,27 @@ export async function POST(
       }
     },
   });
+
+  let orderItemsToCreate = products_.map(product => {
+    const productDetail = productDetails.find(p => p.id === product.id);
+    return {
+      product: {
+        connect: { id: product.id },
+      },
+      amount: productDetail ? productDetail.amount : 0,
+      discount: product.discount,
+      price: product.price,
+      priceAfterDiscount: product.priceAfterDiscount
+    };
+  });
+  // Calculate the total order amount by summing the amounts of order items
+  // const totalOrderAmount = orderItemsToCreate.reduce((total: any, item: any) => total + item.amount, 0);
+  const totalOrderAmount = orderItemsToCreate.reduce(
+    (total: any, item: any) => total + (item.priceAfterDiscount * item.amount), 0
+  );
+
+
+
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
@@ -92,7 +111,6 @@ export async function POST(
       amount: totalOrderAmount,  // Update the order amount
     },
   });
-
   // const calculation = await stripe.tax.calculations.create({
   //   currency: 'usd',
   //   line_items: [

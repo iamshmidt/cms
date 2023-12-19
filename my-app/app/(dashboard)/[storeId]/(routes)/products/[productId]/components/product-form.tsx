@@ -42,8 +42,8 @@ interface ProductFormProps {
   categories: Category[];
   colors: Color[];
   sizes: Size[];
-  price: number;
-  discount: number | null;
+  price?: number;
+  discount?: number | null;
 };
 
 
@@ -127,7 +127,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const checkCatDiscount = () => {
     const selectedCat = getValues("categoryId")
     const selectedCatDiscount = categories.find((cat) => cat.id === selectedCat)?.discount
-    console.log(selectedCatDiscount)
+
     if (selectedCatDiscount !== undefined && selectedCatDiscount !== null ) {
       if(selectedCatDiscount !== 0) {
       toast.success(`This category has ${selectedCatDiscount}% discount on all products.`)

@@ -5,6 +5,7 @@ import { CustomerInfoEmail, OrderColumn } from "./components/columns";
 import {CustomerInfo} from "./components/columns-customer";
 import {Customer} from "./components/client";
 import {format} from 'date-fns';
+
 import { formatter } from "@/lib/utils";
 import { ProductEmail } from "@/types";
 
@@ -39,7 +40,7 @@ const ProductsPage = async ({
         }
     });
 
-    console.log('order',order)
+
     const productIds = orders.map(order => order.productId);
 
     const products = await prismadb.product.findMany({
@@ -87,7 +88,7 @@ const ProductsPage = async ({
         // Assuming 'orders' array corresponds to 'products' array by index
         const orderItem = orders[index];
         // Calculate price
-        const price = item.priceAfterDiscount.toNumber() > 0 ? item.priceAfterDiscount.toNumber() : item.price.toNumber();
+        const price = orderItem.priceAfterDiscount.toNumber() > 0 ? orderItem.priceAfterDiscount.toNumber() : orderItem.price.toNumber();
     
         return {
             id: item.id,
@@ -95,7 +96,7 @@ const ProductsPage = async ({
             name: item.name,
             quantity: orderItem.amount, // Assuming 'amount' exists on orderItem
             price: formatter.format(price),
-            discount: item.discount,
+            discount:orderItem.discount,
             category: item.category.name,
             images: item.images.map(image => image.url),
             size: item.size.name,

@@ -43,9 +43,9 @@ const OrdersPage = async ({
     const formattedOrder1s: OrderItem[] = orders.map((item, index) => {
         const totalPriceForOrder = item.orderItems.reduce((total, orderItem) => {
             // Determine the correct price to use (price after discount or regular price)
-            const priceToUse = orderItem.product.priceAfterDiscount.toNumber() > 0
-                ? orderItem.product.priceAfterDiscount.toNumber()
-                : orderItem.product.price.toNumber();
+            const priceToUse = orderItem.priceAfterDiscount.toNumber() > 0
+                ? orderItem.priceAfterDiscount.toNumber()
+                : orderItem.price.toNumber();
 
             const itemPrice = orderItem.amount * priceToUse;
             return total + itemPrice;
@@ -55,6 +55,7 @@ const OrdersPage = async ({
 
         return { formattedTotalPrice };
     });
+  
 
     const formattedOrders: OrderColumn[] = orders.map((item, index) => ({
         id: item.id,
@@ -71,6 +72,7 @@ const OrdersPage = async ({
         status: item.status
     }));
 
+    console.log(formattedOrders)
     const paidOrders = formattedOrders.filter(order => order.isPaid);
 
 

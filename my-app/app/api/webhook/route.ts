@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
 
   const addressString = addressComponents.filter((c) => c !== null).join(', ');
-  console.log('event', event)
+
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {
@@ -69,15 +69,8 @@ export async function POST(req: Request) {
     });
 
 
-    console.log('order.orderItems', order.orderItems)
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
     const amountProducts = order.orderItems.map((orderItem) => orderItem.amount);
-    const products = order.orderItems.map((orderItem) => orderItem.amount);
-    interface Product {
-      id: string;
-      amount: number;
-      price: number;
-    }
 
 
 
